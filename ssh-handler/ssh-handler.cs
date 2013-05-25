@@ -39,8 +39,8 @@ public class SshHandler
 
         try
         {
-            Regex usage = new Regex(@"^[-/](?:help|usage|\?)$", RegexOptions.IgnoreCase);
-            Regex putty = new Regex(@"^[-/]putty(?:[:=](?<putty_path>.*))?$", RegexOptions.IgnoreCase);
+            Regex usage = new Regex(@"^(?:/|--?)(?:h|help|usage|\?)$", RegexOptions.IgnoreCase);
+            Regex putty = new Regex(@"^(?:/|--?)putty(?:[:=](?<putty_path>.*))?$", RegexOptions.IgnoreCase);
             Uri uri = null;
 
             foreach (string arg in args)
@@ -119,7 +119,10 @@ public class SshHandler
                 continue;
             puttyPath = Path.Combine(path, "putty.exe");
             if (File.Exists(puttyPath))
+            {
+                Debug.WriteLine("Found PuTTY in registry: {0}", puttyPath, null);
                 return true;
+            }
             else
                 puttyPath = null;
         }
@@ -128,7 +131,10 @@ public class SshHandler
         {
             puttyPath = Path.Combine(path, "putty.exe");
             if (File.Exists(puttyPath))
+            {
+                Debug.WriteLine("Found PuTTY in path: {0}", puttyPath, null);
                 return true;
+            }
             else
                 puttyPath = null;
         }
@@ -153,7 +159,7 @@ public class SshHandler
             args.AppendFormat("{0}@", user);
         args.Append(uri.Host);
 
-        Debug.WriteLine("{0} {1}", puttyPath, args);
+        Debug.WriteLine("Running PuTTY command: {0} {1}", puttyPath, args);
         Process.Start(puttyPath, args.ToString());
     }
 }
