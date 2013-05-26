@@ -20,6 +20,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -112,19 +113,28 @@ public class SshHandler
         if (puttyPath != null)
             return true;
 
-        foreach (string key in new string[] { "HKEY_CURRENT_USER", "HKEY_LOCAL_MACHINE" })
+        foreach (RegistryHive hive in new RegistryHive[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
         {
-            string path = (string)Registry.GetValue(key + @"\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PuTTY_is1", "InstallLocation", null);
-            if (path == null)
-                continue;
-            puttyPath = Path.Combine(path, "putty.exe");
-            if (File.Exists(puttyPath))
-            {
-                Debug.WriteLine("Found PuTTY in registry: {0}", puttyPath, null);
-                return true;
-            }
-            else
-                puttyPath = null;
+            IList<RegistryView> views = new List<RegistryView>(new RegistryView[] { RegistryView.Registry32 });
+            if (Environment.Is64BitOperatingSystem)
+                views.Insert(0, RegistryView.Registry64);
+
+            foreach (RegistryView view in views)
+                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(hive, view), key = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PuTTY_is1"))
+                    if (key != null)
+                    {
+                        string path = (string)key.GetValue("InstallLocation");
+                        if (path == null)
+                            continue;
+                        puttyPath = Path.Combine(path, "putty.exe");
+                        if (File.Exists(puttyPath))
+                        {
+                            Debug.WriteLine("Found PuTTY in registry: {0}", puttyPath, null);
+                            return true;
+                        }
+                        else
+                            puttyPath = null;
+                    }
         }
 
         foreach (string path in Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator))
