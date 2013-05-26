@@ -34,7 +34,7 @@ public class SshHandler
     private static Handler handler = Handler.Unspecified;
     private static string puttyPath = null;
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         Application.EnableVisualStyles();
 
@@ -47,10 +47,7 @@ public class SshHandler
             foreach (string arg in args)
             {
                 if (usage.IsMatch(arg))
-                {
-                    Usage();
-                    return;
-                }
+                    return Usage(0);
 
                 Match match;
 
@@ -79,18 +76,22 @@ public class SshHandler
                         break;
                 }
             else
-                Usage();
+                return Usage(1);
         }
         catch (Exception exception)
         {
             MessageBox.Show(exception.Message, "SSH Handler Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            return 2;
         }
+
+        return 0;
     }
 
-    private static void Usage()
+    private static int Usage(int code)
     {
         MessageBox.Show("ssh-handler [/putty[:<putty-path>]] <ssh-url>\n\n" +
             "/putty[:<putty-path>] -- Use PuTTY to connect", "SSH Handler Usage", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        return code;
     }
 
     private static void UserPassword(Uri uri, out string user, out string password)
