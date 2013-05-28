@@ -112,7 +112,7 @@ public class SshHandler
     private static bool FindPutty()
     {
         if (puttyPath != null)
-            return true;
+            goto found;
 
         foreach (RegistryHive hive in new RegistryHive[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
         {
@@ -131,7 +131,7 @@ public class SshHandler
                         if (File.Exists(puttyPath))
                         {
                             Debug.WriteLine("Found PuTTY in registry: {0}", puttyPath, null);
-                            return true;
+                            goto found;
                         }
                         else
                             puttyPath = null;
@@ -144,13 +144,17 @@ public class SshHandler
             if (File.Exists(puttyPath))
             {
                 Debug.WriteLine("Found PuTTY in path: {0}", puttyPath, null);
-                return true;
+                goto found;
             }
             else
                 puttyPath = null;
         }
 
         return false;
+
+    found:
+        puttyPath = puttyPath.Trim();
+        return true;
     }
 
     private static void Putty(Uri uri)
