@@ -70,6 +70,8 @@ XPStyle on
     WriteRegStr ${BASE_KEY} "Software\Classes\ssh" "URL Protocol" ""
     WriteRegStr ${BASE_KEY} "Software\Classes\ssh\shell\open\command" "" '"$INSTDIR\${SSH_HANDLER_EXE}" "%1"'
     WriteRegStr ${BASE_KEY} "${UNINST_REG}" "DisplayName" "$(^Name)"
+    WriteRegStr ${BASE_KEY} "${UNINST_REG}" "DisplayVersion" "${SSH_HANDLER_VERSION}"
+    WriteRegStr ${BASE_KEY} "${UNINST_REG}" "Publisher" "Douglas Thrift"
     WriteRegStr ${BASE_KEY} "${UNINST_REG}" "UninstallString" "$INSTDIR\${UNINST_EXE}"
     WriteRegStr ${BASE_KEY} "${UNINST_REG}" "InstallLocation" "$INSTDIR"
     WriteRegDWORD ${BASE_KEY} "${UNINST_REG}" "NoModify" 1
