@@ -42,27 +42,33 @@ public class SshHandler
         {
             Regex usage = new Regex(@"^(?:/|--?)(?:h|help|usage|\?)$", RegexOptions.IgnoreCase);
             Regex putty = new Regex(@"^(?:/|--?)putty(?:[:=](?<putty_path>.*))?$", RegexOptions.IgnoreCase);
-            Uri uri = null;
+            IList<string> uriParts = null;
 
             foreach (string arg in args)
-            {
-                if (usage.IsMatch(arg))
-                    return Usage(0);
-
-                Match match;
-
-                if ((match = putty.Match(arg)).Success)
+                if (uriParts == null)
                 {
-                    handler = Handler.Putty;
-                    Group group = match.Groups["putty_path"];
-                    if (group.Success)
-                        puttyPath = group.Value;
+                    if (usage.IsMatch(arg))
+                        return Usage(0);
+
+                    Match match;
+
+                    if ((match = putty.Match(arg)).Success)
+                    {
+                        handler = Handler.Putty;
+                        Group group = match.Groups["putty_path"];
+                        if (group.Success)
+                            puttyPath = group.Value;
+                    }
+                    else
+                        uriParts = new List<string>(new string[] { arg });
                 }
                 else
-                    uri = new Uri(arg, UriKind.Absolute);
-            }
+                    uriParts.Add(arg);
 
-            if (uri != null)
+            if (uriParts != null)
+            {
+                Uri uri = new Uri(string.Join(" ", uriParts), UriKind.Absolute);
+
                 switch (handler)
                 {
                     case Handler.Unspecified:
@@ -75,6 +81,7 @@ public class SshHandler
                         Putty(uri);
                         break;
                 }
+            }
             else
                 return Usage(1);
         }
