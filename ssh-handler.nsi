@@ -39,6 +39,8 @@ VIAddVersionKey "ProductVersion" "${SSH_HANDLER_VERSION}.0"
 !define SSH_HANDLER "${SSH_HANDLER_NAME} ${SSH_HANDLER_VERSION}"
 !define SSH_HANDLER_EXE "ssh-handler.exe"
 
+!define DOT_NET_FRAMEWORK_EXE "dotNetFx40_Client_setup.exe"
+
 !define UNINST_REG "Software\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)"
 !define UNINST_EXE "ssh-handler-uninst.exe"
 
@@ -93,8 +95,22 @@ VIAddVersionKey "ProductVersion" "${SSH_HANDLER_VERSION}.0"
     DeleteRegKey ${BASE_KEY} "${UNINST_REG}"
 !macroend
 
-Section ".NET Framework 4 Client Profile"
+Section /o ".NET Framework 4 Client Profile" dot_net_framework_index
     SectionIn 1 RO
+    SetOutPath $TEMP
+    File ${DOT_NET_FRAMEWORK_EXE}
+    ClearErrors
+    ExecWait '"$TEMP\${DOT_NET_FRAMEWORK_EXE}" /q /norestart /chainingpackage "${SSH_HANDLER_NAME}"' $0
+    IfErrors Failed
+    Delete ${DOT_NET_FRAMEWORK_EXE}
+    IntCmpU $0 0 Done
+    IntCmpU $0 1641 RebootFlag
+    IntCmpU $0 3010 RebootFlag
+Failed:
+    Abort "Failed to install .NET Framework 4 Client Profile!"
+RebootFlag:
+    SetRebootFlag true
+Done:
 SectionEnd
 
 Section "!${SSH_HANDLER}"
@@ -127,6 +143,21 @@ SectionEnd
 
 Function .onInit
     !insertmacro MULTIUSER_INIT
+    ClearErrors
+    ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" "Install"
+    IfErrors Client
+    IntCmpU $0 1 Done
+Client:
+    ClearErrors
+    ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client" "Install"
+    IfErrors EnableDotNetFramework
+    IntCmp $0 1 Done
+EnableDotNetFramework:
+    ClearErrors
+    SectionGetFlags ${dot_net_framework_index} $1
+    IntOp $1 $1 | ${SF_SELECTED}
+    SectionSetFlags ${dot_net_framework_index} $1
+Done:
 FunctionEnd
 
 Function un.onInit
