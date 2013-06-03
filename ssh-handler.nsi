@@ -20,6 +20,7 @@
 
 !define SSH_HANDLER_VERSION "1.0.0"
 !define SSH_HANDLER_NAME "SSH Handler"
+!define SSH_HANDLER_AUTHOR "Douglas Thrift"
 
 Name "${SSH_HANDLER_NAME}"
 OutFile "ssh-handler-${SSH_HANDLER_VERSION}.exe"
@@ -27,6 +28,13 @@ SetCompressor /SOLID lzma
 ShowInstDetails show
 ShowUninstDetails show
 XPStyle on
+VIProductVersion "${SSH_HANDLER_VERSION}.0"
+VIAddVersionKey "ProductName" "${SSH_HANDLER_NAME}"
+VIAddVersionKey "CompanyName" "${SSH_HANDLER_AUTHOR}"
+VIAddVersionKey "LegalCopyright" "Copyright 2013 ${SSH_HANDLER_AUTHOR}"
+VIAddVersionKey "FileDescription" "${SSH_HANDLER_NAME}"
+VIAddVersionKey "FileVersion" "${SSH_HANDLER_VERSION}.0"
+VIAddVersionKey "ProductVersion" "${SSH_HANDLER_VERSION}.0"
 
 !define SSH_HANDLER "${SSH_HANDLER_NAME} ${SSH_HANDLER_VERSION}"
 !define SSH_HANDLER_EXE "ssh-handler.exe"
@@ -45,6 +53,7 @@ XPStyle on
 
 !include "MultiUser.nsh"
 !include "MUI2.nsh"
+!include "FileFunc.nsh"
 
 !define MUI_FINISHPAGE_NOAUTOCLOSE
 
@@ -71,7 +80,8 @@ XPStyle on
     WriteRegStr ${BASE_KEY} "Software\Classes\ssh\shell\open\command" "" '"$INSTDIR\${SSH_HANDLER_EXE}" "%1"'
     WriteRegStr ${BASE_KEY} "${UNINST_REG}" "DisplayName" "$(^Name)"
     WriteRegStr ${BASE_KEY} "${UNINST_REG}" "DisplayVersion" "${SSH_HANDLER_VERSION}"
-    WriteRegStr ${BASE_KEY} "${UNINST_REG}" "Publisher" "Douglas Thrift"
+    WriteRegDWORD ${BASE_KEY} "${UNINST_REG}" "EstimatedSize" $0
+    WriteRegStr ${BASE_KEY} "${UNINST_REG}" "Publisher" "${SSH_HANDLER_AUTHOR}"
     WriteRegStr ${BASE_KEY} "${UNINST_REG}" "UninstallString" "$INSTDIR\${UNINST_EXE}"
     WriteRegStr ${BASE_KEY} "${UNINST_REG}" "InstallLocation" "$INSTDIR"
     WriteRegDWORD ${BASE_KEY} "${UNINST_REG}" "NoModify" 1
@@ -92,6 +102,7 @@ Section "!${SSH_HANDLER}"
     SetOutPath -
     WriteUninstaller "${UNINST_EXE}"
     File "ssh-handler\bin\Release\${SSH_HANDLER_EXE}"
+    ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
     StrCmpS $MultiUser.InstallMode "CurrentUser" CurrentUser AllUsers
 CurrentUser:
     !insertmacro REGISTRY HKCU
