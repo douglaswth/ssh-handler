@@ -100,7 +100,7 @@ Section /o ".NET Framework 4 Client Profile" dot_net_framework_index
     SetOutPath $TEMP
     File ${DOT_NET_FRAMEWORK_EXE}
     ClearErrors
-    ExecWait '"$TEMP\${DOT_NET_FRAMEWORK_EXE}" /q /norestart /chainingpackage "${SSH_HANDLER_NAME}"' $0
+    ExecWait '"$TEMP\${DOT_NET_FRAMEWORK_EXE}" /passive /norestart /chainingpackage "${SSH_HANDLER_NAME}"' $0
     IfErrors Failed
     Delete ${DOT_NET_FRAMEWORK_EXE}
     IntCmpU $0 0 Done
@@ -143,11 +143,6 @@ SectionEnd
 
 Function .onInit
     !insertmacro MULTIUSER_INIT
-    ClearErrors
-    ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" "Install"
-    IfErrors Client
-    IntCmpU $0 1 Done
-Client:
     ClearErrors
     ReadRegDWORD $0 HKLM "SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Client" "Install"
     IfErrors EnableDotNetFramework
