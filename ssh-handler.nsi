@@ -57,7 +57,10 @@ VIAddVersionKey "ProductVersion" "${SSH_HANDLER_VERSION}.0"
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
+!define MUI_COMPONENTSPAGE_NODESC
 !define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_FINISHPAGE_SHOWREADME "https://github.com/douglaswth/ssh-handler/blob/${SSH_HANDLER_VERSION}/README.md"
+!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE LICENSE
