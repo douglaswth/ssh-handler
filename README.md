@@ -3,7 +3,7 @@
 SSH Handler is a program that handles SSH URIs like [ssh://user@example.com]
 (ssh://user@example.com) on Windows. When you click an SSH link in your browser,
 it will launch [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/) with
-he correct SSH parameters.
+the correct SSH parameters.
 
 ## Installer
 
@@ -29,13 +29,13 @@ The requirements for building SSH Handler and its installer are:
 ## License
 
     Copyright 2013 Douglas Thrift
- 
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
- 
+
         http://www.apache.org/licenses/LICENSE-2.0
- 
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
