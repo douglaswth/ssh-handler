@@ -11,7 +11,7 @@ The installer will install SSH Handler and the .NET Framework 4 Client Profile
 if it is needed:
 
 * [ssh-handler-1.0.0.exe]
-(http://code.douglasthrift.net/files/ssh-handler/ssh-handler-1.0.0.exe) `867 kB`
+(https://github.com/douglaswth/ssh-handler/releases/1.0.0/366/ssh-handler-1.0.0.exe) `867 kB`
 
 [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/) must be installed
 from its installer or available in directory in the `PATH` environment variable.
