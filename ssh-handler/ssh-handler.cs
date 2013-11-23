@@ -29,11 +29,18 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
-public enum Option
+public enum MatchOption
 {
     None,
     Set,
-    Optional,
+    Option,
+}
+
+public enum AutoYesNoOption
+{
+    Auto,
+    Yes,
+    No,
 }
 
 public interface Handler
@@ -43,12 +50,12 @@ public interface Handler
         get;
     }
 
-    Option DoMatch(string arg);
+    MatchOption DoMatch(string arg);
     bool Find();
     void Execute(Uri uri, string user, string password);
 }
 
-public abstract class FindInPathMixin
+public abstract class AbstractHandler
 {
     protected string FindInPath(string program)
     {
@@ -61,11 +68,29 @@ public abstract class FindInPathMixin
 
         return null;
     }
+
+    protected void SetYesNoValue(string input, out AutoYesNoOption option, out string value)
+    {
+        value = null;
+
+        switch (input.ToLowerInvariant())
+        {
+        case "yes":
+            option = AutoYesNoOption.Yes;
+            break;
+        case "no":
+            option = AutoYesNoOption.No;
+            break;
+        default:
+            value = input;
+            goto case "yes";
+        }
+    }
 }
 
-public class Putty : FindInPathMixin, Handler
+public class Putty : AbstractHandler, Handler
 {
-    private Regex option = new Regex(@"^(?:/|--?)putty(?:[:=](?<putty_path>.*))?$", RegexOptions.IgnoreCase);
+    private Regex regex = new Regex(@"^(?:/|--?)putty(?:[:=](?<putty_path>.*))?$", RegexOptions.IgnoreCase);
     private string path = null;
 
     public IList<string> Usages
@@ -76,19 +101,19 @@ public class Putty : FindInPathMixin, Handler
         }
     }
 
-    public Option DoMatch(string arg)
+    public MatchOption DoMatch(string arg)
     {
         Match match;
 
-        if ((match = option.Match(arg)).Success)
+        if ((match = regex.Match(arg)).Success)
         {
             Group group = match.Groups["putty_path"];
             if (group.Success)
                 path = group.Value;
-            return Option.Set;
+            return MatchOption.Set;
         }
         else
-            return Option.None;
+            return MatchOption.None;
     }
 
     public bool Find()
@@ -152,10 +177,16 @@ public class Putty : FindInPathMixin, Handler
     }
 }
 
-public class Openssh : FindInPathMixin, Handler
+public class Openssh : AbstractHandler, Handler
 {
-    private Regex option = new Regex(@"^(?:/|--?)openssh(?:[:=](?<openssh_path>.*))?$", RegexOptions.IgnoreCase);
+    private Regex regex = new Regex(@"^(?:/|--?)openssh(?:[:=](?<openssh_path>.*))?$", RegexOptions.IgnoreCase);
+    private Regex cygwinRegex = new Regex(@"^(?:/|--?)cygwin(?:[:=](?<cygwin_path>.*))?$", RegexOptions.IgnoreCase);
+    private Regex minttyRegex = new Regex(@"^(?:/|--?)mintty(?:[:=](?<mintty_path>.*))?$", RegexOptions.IgnoreCase);
+    private AutoYesNoOption cygwin = AutoYesNoOption.Auto;
+    private AutoYesNoOption mintty = AutoYesNoOption.Auto;
     private string path = null;
+    string cygwinPath = null;
+    string minttyPath = null;
 
     public IList<string> Usages
     {
@@ -164,23 +195,39 @@ public class Openssh : FindInPathMixin, Handler
             return new string[]
             {
                 "/openssh[:<openssh-path>] -- Use OpenSSH to connect",
+                "/cygwin[:(yes|no|<cygwin-path>)] -- Use Cygwin for OpenSSH (by default, Cygwin will be used for OpenSSH if detected)",
+                "/mintty[:(yes|no|<mintty-path>)] -- Use MinTTY for OpenSSH (by default, MinTTY will be used for OpenSSH if detected)",
             };
         }
     }
 
-    public Option DoMatch(string arg)
+    public MatchOption DoMatch(string arg)
     {
         Match match;
 
-        if ((match = option.Match(arg)).Success)
+        if ((match = regex.Match(arg)).Success)
         {
             Group group = match.Groups["openssh_path"];
             if (group.Success)
                 path = group.Value;
-            return Option.Set;
+            return MatchOption.Set;
+        }
+        else if ((match = cygwinRegex.Match(arg)).Success)
+        {
+            Group group = match.Groups["cygwin_path"];
+            if (group.Success)
+                SetYesNoValue(group.Value, out cygwin, out cygwinPath);
+            return MatchOption.Option;
+        }
+        else if ((match = minttyRegex.Match(arg)).Success)
+        {
+            Group group = match.Groups["mintty_path"];
+            if (group.Success)
+                SetYesNoValue(group.Value, out mintty, out minttyPath);
+            return MatchOption.Option;
         }
         else
-            return Option.None;
+            return MatchOption.None;
     }
 
     public bool Find()
@@ -188,28 +235,13 @@ public class Openssh : FindInPathMixin, Handler
         if (path != null)
             goto Found;
 
-        foreach (var hive in new RegistryHive[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
+        switch (cygwin)
         {
-            var views = new List<RegistryView>(new RegistryView[] { RegistryView.Registry32 });
-            if (Environment.Is64BitOperatingSystem)
-                views.Insert(0, RegistryView.Registry64);
-
-            foreach (RegistryView view in views)
-                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(hive, view), key = baseKey.OpenSubKey(@"SOFTWARE\Cygwin\setup"))
-                    if (key != null)
-                    {
-                        string location = (string)key.GetValue("rootdir");
-                        if (location == null)
-                            continue;
-                        path = Path.Combine(location, "bin", "ssh.exe");
-                        if (File.Exists(path))
-                        {
-                            Debug.WriteLine("Found OpenSSH in registry: {0}", path, null);
-                            goto Found;
-                        }
-                        else
-                            path = null;
-                    }
+        case AutoYesNoOption.Auto:
+        case AutoYesNoOption.Yes:
+            if (FindCygwin())
+                goto Found;
+            break;
         }
 
         if ((path = FindInPath("ssh.exe")) != null)
@@ -222,6 +254,13 @@ public class Openssh : FindInPathMixin, Handler
 
     Found:
         path = path.Trim();
+        switch (mintty)
+        {
+        case AutoYesNoOption.Auto:
+        case AutoYesNoOption.Yes:
+            FindMintty();
+            break;
+        }
         return true;
     }
 
@@ -230,17 +269,111 @@ public class Openssh : FindInPathMixin, Handler
         if (!Find())
             throw new Exception("Could not find OpenSSH executable.");
 
+        string command = path;
         StringBuilder args = new StringBuilder();
+
+        if (minttyPath != null)
+        {
+            command = minttyPath;
+            if (cygwinPath != null)
+            {
+                string icon = Path.Combine(cygwinPath, "Cygwin-Terminal.ico");
+                if (File.Exists(icon))
+                    args.AppendFormat("-i {0} ", icon);
+            }
+            args.AppendFormat("-e {0} ", path);
+        }
+
         if (password != null)
-            Debug.WriteLine("Warning: OpenSSH does not support passing a password!");
+            Debug.WriteLine("Warning: OpenSSH does not support passing a password.");
         if (uri.Port != -1)
             args.AppendFormat("-p {0} ", uri.Port);
         if (user != null)
             args.AppendFormat("{0}@", user);
         args.Append(uri.Host);
 
-        Debug.WriteLine("Running OpenSSH command: {0} {1}", path, args);
-        Process.Start(path, args.ToString());
+        Debug.WriteLine("Running OpenSSH command: {0} {1}", command, args);
+        Process.Start(command, args.ToString());
+    }
+
+    private bool FindCygwin()
+    {
+        if (cygwinPath != null)
+            goto Found;
+
+        foreach (var hive in new RegistryHive[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
+        {
+            var views = new List<RegistryView>(new RegistryView[] { RegistryView.Registry32 });
+            if (Environment.Is64BitOperatingSystem)
+                views.Insert(0, RegistryView.Registry64);
+
+            foreach (RegistryView view in views)
+                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(hive, view), key = baseKey.OpenSubKey(@"SOFTWARE\Cygwin\setup"))
+                    if (key != null)
+                    {
+                        cygwinPath = (string)key.GetValue("rootdir");
+                        if (cygwinPath == null)
+                            continue;
+                        if (Directory.Exists(cygwinPath))
+                        {
+                            Debug.WriteLine("Found Cygwin in registry: {0}", cygwinPath, null);
+                            goto Found;
+                        }
+                        else
+                            cygwinPath = null;
+                    }
+        }
+
+        if (cygwin == AutoYesNoOption.Yes)
+            throw new Exception("Could not find Cygwin in registry.");
+        return false;
+
+    Found:
+        cygwinPath = cygwinPath.Trim();
+        path = Path.Combine(cygwinPath, "bin", "ssh.exe");
+        if (File.Exists(path))
+        {
+            Debug.WriteLine("Found OpenSSH in Cygwin directory: {0}", path, null);
+            return true;
+        }
+        else if (cygwin == AutoYesNoOption.Yes)
+            throw new Exception("Could not find OpenSSH in Cygwin directory.");
+        else
+        {
+            path = null;
+            return false;
+        }
+    }
+
+    private void FindMintty()
+    {
+        if (minttyPath != null)
+            goto Found;
+
+        if (cygwinPath != null)
+        {
+            minttyPath = Path.Combine(cygwinPath, "bin", "mintty.exe");
+            if (File.Exists(minttyPath))
+            {
+                Debug.WriteLine("Found MinTTY in Cygwin directory: {0}", minttyPath, null);
+                goto Found;
+            }
+            else
+                minttyPath = null;
+        }
+
+        if ((minttyPath = FindInPath("mintty.exe")) != null)
+        {
+            Debug.WriteLine("Found MinTTY in path: {0}", minttyPath, null);
+            goto Found;
+        }
+
+        if (mintty == AutoYesNoOption.Yes)
+            throw new Exception("Could no find MinTTY executable.");
+        return;
+
+    Found:
+        minttyPath = minttyPath.Trim();
     }
 }
 
@@ -301,8 +434,8 @@ public class SshHandler
     private static int Usage(int code)
     {
         MessageBox.Show("ssh-handler [/putty[:<putty-path>]] <ssh-url>\n\n" +
-            string.Join("\n", handlers.SelectMany(handler => handler.Usages)), "SSH Handler Usage", MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
+            string.Join("\n\n", handlers.SelectMany(handler => handler.Usages)), "SSH Handler Usage",
+            MessageBoxButtons.OK, MessageBoxIcon.Information);
         return code;
     }
 
@@ -311,11 +444,11 @@ public class SshHandler
         foreach (Handler handler in handlers)
             switch (handler.DoMatch(arg))
             {
-            case Option.Set:
+            case MatchOption.Set:
                 Debug.WriteLine("Setting handler: {0}", handler, null);
                 SshHandler.handler = handler;
-                goto case Option.Optional;
-            case Option.Optional:
+                goto case MatchOption.Option;
+            case MatchOption.Option:
                 return true;
             }
 
