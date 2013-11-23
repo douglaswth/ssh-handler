@@ -88,7 +88,7 @@ public abstract class AbstractHandler
     }
 }
 
-public class Putty : AbstractHandler, Handler
+public class PuttyHandler : AbstractHandler, Handler
 {
     private Regex regex = new Regex(@"^(?:/|--?)putty(?:[:=](?<putty_path>.*))?$", RegexOptions.IgnoreCase);
     private string path = null;
@@ -177,7 +177,7 @@ public class Putty : AbstractHandler, Handler
     }
 }
 
-public class Openssh : AbstractHandler, Handler
+public class OpensshHandler : AbstractHandler, Handler
 {
     private Regex regex = new Regex(@"^(?:/|--?)openssh(?:[:=](?<openssh_path>.*))?$", RegexOptions.IgnoreCase);
     private Regex cygwinRegex = new Regex(@"^(?:/|--?)cygwin(?:[:=](?<cygwin_path>.*))?$", RegexOptions.IgnoreCase);
@@ -381,8 +381,8 @@ public class SshHandler
 {
     private static IList<Handler> handlers = new Handler[]
     {
-        new Putty(),
-        new Openssh(),
+        new PuttyHandler(),
+        new OpensshHandler(),
     };
     private static Handler handler = null;
 
