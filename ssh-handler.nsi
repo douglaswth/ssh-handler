@@ -18,7 +18,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-!define SSH_HANDLER_VERSION "1.0.0"
+!define SSH_HANDLER_VERSION "1.1.0"
 !define SSH_HANDLER_NAME "SSH Handler"
 !define SSH_HANDLER_AUTHOR "Douglas Thrift"
 
