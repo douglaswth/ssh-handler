@@ -54,7 +54,7 @@ public abstract class FindInPathMixin
     {
         foreach (string location in Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator))
         {
-            string path = Path.Combine(location, "putty.exe");
+            string path = Path.Combine(location, program);
             if (File.Exists(path))
                 return path;
         }
@@ -94,11 +94,11 @@ public class Putty : FindInPathMixin, Handler
     public bool Find()
     {
         if (path != null)
-            goto found;
+            goto Found;
 
-        foreach (RegistryHive hive in new RegistryHive[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
+        foreach (var hive in new RegistryHive[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
         {
-            IList<RegistryView> views = new List<RegistryView>(new RegistryView[] { RegistryView.Registry32 });
+            var views = new List<RegistryView>(new RegistryView[] { RegistryView.Registry32 });
             if (Environment.Is64BitOperatingSystem)
                 views.Insert(0, RegistryView.Registry64);
 
@@ -113,7 +113,7 @@ public class Putty : FindInPathMixin, Handler
                         if (File.Exists(path))
                         {
                             Debug.WriteLine("Found PuTTY in registry: {0}", path, null);
-                            goto found;
+                            goto Found;
                         }
                         else
                             path = null;
@@ -123,12 +123,12 @@ public class Putty : FindInPathMixin, Handler
         if ((path = FindInPath("putty.exe")) != null)
         {
             Debug.WriteLine("Found PuTTY in path: {0}", path, null);
-            goto found;
+            goto Found;
         }
 
         return false;
 
-    found:
+    Found:
         path = path.Trim();
         return true;
     }
@@ -152,14 +152,106 @@ public class Putty : FindInPathMixin, Handler
     }
 }
 
+public class Openssh : FindInPathMixin, Handler
+{
+    private Regex option = new Regex(@"^(?:/|--?)openssh(?:[:=](?<openssh_path>.*))?$", RegexOptions.IgnoreCase);
+    private string path = null;
+
+    public IList<string> Usages
+    {
+        get
+        {
+            return new string[]
+            {
+                "/openssh[:<openssh-path>] -- Use OpenSSH to connect",
+            };
+        }
+    }
+
+    public Option DoMatch(string arg)
+    {
+        Match match;
+
+        if ((match = option.Match(arg)).Success)
+        {
+            Group group = match.Groups["openssh_path"];
+            if (group.Success)
+                path = group.Value;
+            return Option.Set;
+        }
+        else
+            return Option.None;
+    }
+
+    public bool Find()
+    {
+        if (path != null)
+            goto Found;
+
+        foreach (var hive in new RegistryHive[] { RegistryHive.CurrentUser, RegistryHive.LocalMachine })
+        {
+            var views = new List<RegistryView>(new RegistryView[] { RegistryView.Registry32 });
+            if (Environment.Is64BitOperatingSystem)
+                views.Insert(0, RegistryView.Registry64);
+
+            foreach (RegistryView view in views)
+                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(hive, view), key = baseKey.OpenSubKey(@"SOFTWARE\Cygwin\setup"))
+                    if (key != null)
+                    {
+                        string location = (string)key.GetValue("rootdir");
+                        if (location == null)
+                            continue;
+                        path = Path.Combine(location, "bin", "ssh.exe");
+                        if (File.Exists(path))
+                        {
+                            Debug.WriteLine("Found OpenSSH in registry: {0}", path, null);
+                            goto Found;
+                        }
+                        else
+                            path = null;
+                    }
+        }
+
+        if ((path = FindInPath("ssh.exe")) != null)
+        {
+            Debug.WriteLine("Found OpenSSH in path: {0}", path, null);
+            goto Found;
+        }
+
+        return false;
+
+    Found:
+        path = path.Trim();
+        return true;
+    }
+
+    public void Execute(Uri uri, string user, string password)
+    {
+        if (!Find())
+            throw new Exception("Could not find OpenSSH executable.");
+
+        StringBuilder args = new StringBuilder();
+        if (password != null)
+            Debug.WriteLine("Warning: OpenSSH does not support passing a password!");
+        if (uri.Port != -1)
+            args.AppendFormat("-p {0} ", uri.Port);
+        if (user != null)
+            args.AppendFormat("{0}@", user);
+        args.Append(uri.Host);
+
+        Debug.WriteLine("Running OpenSSH command: {0} {1}", path, args);
+        Process.Start(path, args.ToString());
+    }
+}
+
 public class SshHandler
 {
     private static IList<Handler> handlers = new Handler[]
     {
         new Putty(),
+        new Openssh(),
     };
     private static Handler handler = null;
-    private static string puttyPath = null;
 
     public static int Main(string[] args)
     {
@@ -220,6 +312,7 @@ public class SshHandler
             switch (handler.DoMatch(arg))
             {
             case Option.Set:
+                Debug.WriteLine("Setting handler: {0}", handler, null);
                 SshHandler.handler = handler;
                 goto case Option.Optional;
             case Option.Optional:
