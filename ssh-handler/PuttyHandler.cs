@@ -45,12 +45,7 @@ public class PuttyHandler : AbstractHandler, Handler
         Match match;
 
         if ((match = regex.Match(arg)).Success)
-        {
-            Group group = match.Groups["putty_path"];
-            if (group.Success)
-                path = group.Value;
-            return MatchOption.Set;
-        }
+            return SetValue(match, "putty_path", ref path);
         else
             return MatchOption.None;
     }
@@ -104,7 +99,7 @@ public class PuttyHandler : AbstractHandler, Handler
 
         StringBuilder args = new StringBuilder();
         if (password != null)
-            args.AppendFormat("-pw {0} ", password);
+            args.AppendFormat("-pw \"{0}\" ", password);
         if (uri.Port != -1)
             args.AppendFormat("-P {0} ", uri.Port);
         if (user != null)

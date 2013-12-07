@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
@@ -32,11 +33,14 @@ public class OpensshHandler : AbstractHandler, Handler
     private Regex regex = new Regex(@"^(?:/|--?)openssh(?:[:=](?<openssh_path>.*))?$", RegexOptions.IgnoreCase);
     private Regex cygwinRegex = new Regex(@"^(?:/|--?)cygwin(?:[:=](?<cygwin_path>.*))?$", RegexOptions.IgnoreCase);
     private Regex minttyRegex = new Regex(@"^(?:/|--?)mintty(?:[:=](?<mintty_path>.*))?$", RegexOptions.IgnoreCase);
+    private Regex bashRegex = new Regex(@"^(?:/|--?)bash(?:[:=](?<bash_path>.*))?$", RegexOptions.IgnoreCase);
     private AutoYesNoOption cygwin = AutoYesNoOption.Auto;
     private AutoYesNoOption mintty = AutoYesNoOption.Auto;
+    private bool bash = false;
     private string path = null;
     string cygwinPath = null;
     string minttyPath = null;
+    string bashPath = null;
 
     public IList<string> Usages
     {
@@ -47,6 +51,7 @@ public class OpensshHandler : AbstractHandler, Handler
                 "/openssh[:<openssh-path>] -- Use OpenSSH to connect",
                 "/cygwin[:(yes|no|<cygwin-path>)] -- Use Cygwin for OpenSSH (by default, Cygwin will be used for OpenSSH if detected)",
                 "/mintty[:(yes|no|<mintty-path>)] -- Use MinTTY for OpenSSH (by default, MinTTY will be used for OpenSSH if detected)",
+                "/bash[:(yes|no|<bash-path>)] -- Use Bash login shell for use with ssh-agent",
             };
         }
     }
@@ -56,26 +61,13 @@ public class OpensshHandler : AbstractHandler, Handler
         Match match;
 
         if ((match = regex.Match(arg)).Success)
-        {
-            Group group = match.Groups["openssh_path"];
-            if (group.Success)
-                path = group.Value;
-            return MatchOption.Set;
-        }
+            return SetValue(match, "openssh_path", ref path);
         else if ((match = cygwinRegex.Match(arg)).Success)
-        {
-            Group group = match.Groups["cygwin_path"];
-            if (group.Success)
-                SetYesNoValue(group.Value, out cygwin, out cygwinPath);
-            return MatchOption.Option;
-        }
+            return SetYesNoValue(match, "cygwin_path", out cygwin, ref cygwinPath);
         else if ((match = minttyRegex.Match(arg)).Success)
-        {
-            Group group = match.Groups["mintty_path"];
-            if (group.Success)
-                SetYesNoValue(group.Value, out mintty, out minttyPath);
-            return MatchOption.Option;
-        }
+            return SetYesNoValue(match, "mintty_path", out mintty, ref minttyPath);
+        else if ((match = bashRegex.Match(arg)).Success)
+            return SetBooleanValue(match, "bash_path", out bash, ref bashPath);
         else
             return MatchOption.None;
     }
@@ -111,6 +103,8 @@ public class OpensshHandler : AbstractHandler, Handler
             FindMintty();
             break;
         }
+        if (bash)
+            FindBash();
         return true;
     }
 
@@ -119,31 +113,55 @@ public class OpensshHandler : AbstractHandler, Handler
         if (!Find())
             throw new Exception("Could not find OpenSSH executable.");
 
-        string command = path;
-        StringBuilder args = new StringBuilder();
-
-        if (minttyPath != null)
+        if (cygwinPath != null && bash)
         {
-            command = minttyPath;
-            if (cygwinPath != null)
-            {
-                string icon = Path.Combine(cygwinPath, "Cygwin-Terminal.ico");
-                if (File.Exists(icon))
-                    args.AppendFormat("-i {0} ", icon);
-            }
-            args.AppendFormat("-e {0} ", path);
+            ProcessStartInfo info = new ProcessStartInfo(Path.Combine(cygwinPath, "bin", "cygpath.exe"), Quote(path));
+
+            info.CreateNoWindow = true;
+            info.RedirectStandardOutput = true;
+            info.RedirectStandardError = true;
+            info.UseShellExecute = false;
+
+            Process process = Process.Start(info);
+            string error = process.StandardError.ReadToEnd().Trim();
+
+            path = process.StandardOutput.ReadToEnd().Trim();
+
+            process.WaitForExit();
+
+            if (process.ExitCode != 0)
+                throw new Exception(error);
         }
+
+        var command = new List<string>(new string[] { path });
+
+        //if (minttyPath != null)
+        //{
+        //    command = minttyPath;
+        //    if (cygwinPath != null)
+        //    {
+        //        string icon = Path.Combine(cygwinPath, "Cygwin-Terminal.ico");
+        //        if (File.Exists(icon))
+        //            args.AppendFormat("-i \"{0}\" ", icon);
+        //    }
+        //    args.AppendFormat("-e \"{0}\" ", path);
+        //}
 
         if (password != null)
             Debug.WriteLine("Warning: OpenSSH does not support passing a password.");
         if (uri.Port != -1)
-            args.AppendFormat("-p {0} ", uri.Port);
-        if (user != null)
-            args.AppendFormat("{0}@", user);
-        args.Append(uri.Host);
+            AddArguments(command, "-p", uri.Port);
+        AddArguments(command, user != null ? string.Format("{0}@{1}", user, uri.Host) : uri.Host);
 
-        Debug.WriteLine("Running OpenSSH command: {0} {1}", command, args);
-        Process.Start(command, args.ToString());
+        if (bash)
+        {
+            command = new List<string>(new string[] { bashPath, "-lc", Quote(Command(command)) });
+        }
+
+        //Debug.WriteLine("Running OpenSSH command: {0} {1}", command, args);
+        //Process.Start(command, args.ToString());
+
+        command.ForEach(item => Debug.WriteLine(item));
     }
 
     private bool FindCygwin()
@@ -219,10 +237,49 @@ public class OpensshHandler : AbstractHandler, Handler
         }
 
         if (mintty == AutoYesNoOption.Yes)
-            throw new Exception("Could no find MinTTY executable.");
+            throw new Exception("Could not find MinTTY executable.");
         return;
 
     Found:
         minttyPath = minttyPath.Trim();
+    }
+
+    private void FindBash()
+    {
+        if (bashPath != null)
+            goto Found;
+
+        if (cygwinPath != null)
+        {
+            bashPath = Path.Combine(cygwinPath, "bin", "bash.exe");
+            if (File.Exists(bashPath))
+            {
+                Debug.WriteLine("Found Bash in Cygwin directory: {0}", bashPath, null);
+                goto Found;
+            }
+            else
+                bashPath = null;
+        }
+
+        if ((bashPath = FindInPath("bash.exe")) != null)
+        {
+            Debug.WriteLine("Found Bash in path: {0}", bashPath, null);
+            goto Found;
+        }
+
+        throw new Exception("Could not find Bash executable.");
+
+    Found:
+        bashPath = bashPath.Trim();
+    }
+
+    private string Quote(string value)
+    {
+        return string.Format("'{0}'", value.Replace("\"", "\\\"").Replace('\'', '"'));
+    }
+
+    private string Command(IList<string> command)
+    {
+        return string.Join(" ", command.Select(item => Quote(item)));
     }
 }

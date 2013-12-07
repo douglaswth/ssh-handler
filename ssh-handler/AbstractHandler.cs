@@ -20,7 +20,10 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 public abstract class AbstractHandler
 {
@@ -36,21 +39,48 @@ public abstract class AbstractHandler
         return null;
     }
 
-    protected void SetYesNoValue(string input, out AutoYesNoOption option, out string value)
+    protected MatchOption SetValue(Match match, string groupName, ref string value)
     {
-        value = null;
+        Group group = match.Groups[groupName];
+        if (group.Success)
+            value = group.Value;
 
-        switch (input.ToLowerInvariant())
-        {
-        case "yes":
-            option = AutoYesNoOption.Yes;
-            break;
-        case "no":
-            option = AutoYesNoOption.No;
-            break;
-        default:
-            value = input;
-            goto case "yes";
-        }
+        return MatchOption.Set;
+    }
+
+    protected MatchOption SetBooleanValue(Match match, string groupName, out bool option, ref string value)
+    {
+        Group group = match.Groups[groupName];
+        if (group.Success)
+            switch (group.Value.ToLowerInvariant())
+            {
+            case "yes":
+                option = true;
+                break;
+            case "no":
+                option = false;
+                break;
+            default:
+                value = group.Value;
+                goto case "yes";
+            }
+        else
+            option = true;
+
+        return MatchOption.Option;
+    }
+
+    protected MatchOption SetYesNoValue(Match match, string groupName, out AutoYesNoOption option, ref string value)
+    {
+        bool optionValue;
+        MatchOption matchOption = SetBooleanValue(match, groupName, out optionValue, ref value);
+        option = optionValue ? AutoYesNoOption.Yes : AutoYesNoOption.No;
+
+        return matchOption;
+    }
+
+    protected void AddArguments(List<string> command, params object[] arguments)
+    {
+        command.AddRange(arguments.Select(argument => argument.ToString()));
     }
 }
