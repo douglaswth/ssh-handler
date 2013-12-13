@@ -32,11 +32,19 @@ public class PuttyHandler : AbstractHandler, Handler
     private Regex regex = new Regex(@"^(?:/|--?)putty(?:[:=](?<putty_path>.*))?$", RegexOptions.IgnoreCase);
     private string path = null;
 
+    public IList<string> Options
+    {
+        get
+        {
+            return new string[] { "/putty[:<putty-path>]" };
+        }
+    }
+
     public IList<string> Usages
     {
         get
         {
-            return new string[] { "/putty[:<putty-path>] -- Use PuTTY to connect" };
+            return new string[] { "Use PuTTY to connect" };
         }
     }
 

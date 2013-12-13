@@ -42,16 +42,30 @@ public class OpensshHandler : AbstractHandler, Handler
     string minttyPath = null;
     string bashPath = null;
 
+    public IList<string> Options
+    {
+        get
+        {
+            return new string[]
+            {
+                "/openssh[:<openssh-path>]",
+                "/cygwin[:(yes|no|<cygwin-path>)]",
+                "/mintty[:(yes|no|<mintty-path>)]",
+                "/bash[:(yes|no|<bash-path>)]",
+            };
+        }
+    }
+
     public IList<string> Usages
     {
         get
         {
             return new string[]
             {
-                "/openssh[:<openssh-path>] -- Use OpenSSH to connect",
-                "/cygwin[:(yes|no|<cygwin-path>)] -- Use Cygwin for OpenSSH (by default, Cygwin will be used for OpenSSH if detected)",
-                "/mintty[:(yes|no|<mintty-path>)] -- Use MinTTY for OpenSSH (by default, MinTTY will be used for OpenSSH if detected)",
-                "/bash[:(yes|no|<bash-path>)] -- Use Bash login shell for use with ssh-agent",
+                "Use OpenSSH to connect",
+                "Use Cygwin for OpenSSH (by default, Cygwin will be used for OpenSSH if detected)",
+                "Use MinTTY for OpenSSH (by default, MinTTY will be used for OpenSSH if detected)",
+                "Use Bash login shell for use with ssh-agent",
             };
         }
     }
@@ -115,7 +129,7 @@ public class OpensshHandler : AbstractHandler, Handler
 
         if (cygwinPath != null && bash)
         {
-            ProcessStartInfo info = new ProcessStartInfo(Path.Combine(cygwinPath, "bin", "cygpath.exe"), Quote(path));
+            ProcessStartInfo info = new ProcessStartInfo(Path.Combine(cygwinPath, "bin", "cygpath.exe"), CygwinQuote(path));
 
             info.CreateNoWindow = true;
             info.RedirectStandardOutput = true;
@@ -135,18 +149,6 @@ public class OpensshHandler : AbstractHandler, Handler
 
         var command = new List<string>(new string[] { path });
 
-        //if (minttyPath != null)
-        //{
-        //    command = minttyPath;
-        //    if (cygwinPath != null)
-        //    {
-        //        string icon = Path.Combine(cygwinPath, "Cygwin-Terminal.ico");
-        //        if (File.Exists(icon))
-        //            args.AppendFormat("-i \"{0}\" ", icon);
-        //    }
-        //    args.AppendFormat("-e \"{0}\" ", path);
-        //}
-
         if (password != null)
             Debug.WriteLine("Warning: OpenSSH does not support passing a password.");
         if (uri.Port != -1)
@@ -155,13 +157,27 @@ public class OpensshHandler : AbstractHandler, Handler
 
         if (bash)
         {
-            command = new List<string>(new string[] { bashPath, "-lc", Quote(Command(command)) });
+            command = new List<string>(new string[] { bashPath, "-lc", CygwinCommand(command) });
         }
 
-        //Debug.WriteLine("Running OpenSSH command: {0} {1}", command, args);
-        //Process.Start(command, args.ToString());
+        if (minttyPath != null)
+        {
+            var minttyCommand = new List<string>(new string[] { minttyPath });
+            
+            if (cygwinPath != null)
+            {
+                string icon = Path.Combine(cygwinPath, "Cygwin-Terminal.ico");
+                if (File.Exists(icon))
+                    AddArguments(minttyCommand, "-i", icon);
+            }
 
-        command.ForEach(item => Debug.WriteLine(item));
+            AddArguments(minttyCommand, "-e");
+            command.InsertRange(0, minttyCommand);
+        }
+
+        string arguments = CygwinCommand(command.Skip(1));
+        Debug.WriteLine("Running OpenSSH command: {0} {1}", command.First(), arguments);
+        Process.Start(command.First(), arguments);
     }
 
     private bool FindCygwin()
@@ -273,13 +289,21 @@ public class OpensshHandler : AbstractHandler, Handler
         bashPath = bashPath.Trim();
     }
 
-    private string Quote(string value)
+    private string CygwinQuote(string value)
     {
         return string.Format("'{0}'", value.Replace("\"", "\\\"").Replace('\'', '"'));
     }
 
-    private string Command(IList<string> command)
+    private string CygwinAutoQuote(string value)
     {
-        return string.Join(" ", command.Select(item => Quote(item)));
+        if (Regex.IsMatch(value, "[ '\"]"))
+            return CygwinQuote(value);
+        else
+            return value;
+    }
+
+    private string CygwinCommand(IEnumerable<string> command)
+    {
+        return string.Join(" ", command.Select(item => CygwinAutoQuote(item)));
     }
 }

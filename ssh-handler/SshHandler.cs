@@ -82,8 +82,11 @@ public class SshHandler
 
     private static int Usage(int code)
     {
-        MessageBox.Show("ssh-handler [/putty[:<putty-path>]] <ssh-url>\n\n" +
-            string.Join("\n\n", handlers.SelectMany(handler => handler.Usages)), "SSH Handler Usage",
+        MessageBox.Show("ssh-handler " +
+            string.Join(" ", handlers.SelectMany(handler => handler.Options.Select(option => "[" + option + "]"))) +
+            " <ssh-url>\n\n" +
+            string.Join("\n\n", handlers.SelectMany(handler => handler.Options.Zip(handler.Usages, (option, usage) => option + " -- " + usage))),
+            "SSH Handler Usage",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
         return code;
     }

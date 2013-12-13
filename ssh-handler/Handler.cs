@@ -24,6 +24,10 @@ using System.Collections.Generic;
 
 public interface Handler
 {
+    IList<string> Options
+    {
+        get;
+    }
     IList<string> Usages
     {
         get;
