@@ -1,5 +1,11 @@
 # SSH Handler
 
+[![Release](https://img.shields.io/github/release/douglaswth/ssh-handler.svg?style=flat)][release]
+[![Issues](https://img.shields.io/github/issues/douglaswth/ssh-handler.svg?style=flat)][issues]
+
+[release]: https://github.com/douglaswth/ssh-handler/releases/latest
+[issues]: https://github.com/douglaswth/ssh-handler/issues
+
 SSH Handler is a program that handles SSH URIs like [ssh://user@example.com]
 (ssh://user@example.com) on Windows. When you click an SSH link in your browser,
 it will launch [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/) with
