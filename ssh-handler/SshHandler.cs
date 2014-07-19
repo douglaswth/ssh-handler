@@ -35,6 +35,7 @@ public class SshHandler
     };
     private static Handler handler = null;
 
+    [STAThread]
     public static int Main(string[] args)
     {
         Application.EnableVisualStyles();
@@ -42,6 +43,7 @@ public class SshHandler
         try
         {
             Regex usage = new Regex(@"^(?:/|--?)(?:h|help|usage|\?)$", RegexOptions.IgnoreCase);
+            Regex settings = new Regex(@"^(?:/|--?)settings$", RegexOptions.IgnoreCase);
             IList<string> uriParts = null;
 
             foreach (string arg in args)
@@ -49,6 +51,9 @@ public class SshHandler
                 {
                     if (usage.IsMatch(arg))
                         return Usage(0);
+
+                    if (settings.IsMatch(arg))
+                        return Settings();
 
                     if (!MatchHandler(arg))
                         uriParts = new List<string>(new string[] { arg });
@@ -82,13 +87,21 @@ public class SshHandler
 
     private static int Usage(int code)
     {
-        MessageBox.Show("ssh-handler " +
+        MessageBox.Show("ssh-handler [/settings] " +
             string.Join(" ", handlers.SelectMany(handler => handler.Options.Select(option => "[" + option + "]"))) +
             " <ssh-url>\n\n" +
+            "/settings -- Show settings dialog\n\n" +
             string.Join("\n\n", handlers.SelectMany(handler => handler.Options.Zip(handler.Usages, (option, usage) => option + " -- " + usage))),
             "SSH Handler Usage",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
         return code;
+    }
+
+    private static int Settings()
+    {
+        new SshHandlerSettings().ShowDialog();
+
+        return 0;
     }
 
     private static bool MatchHandler(string arg)
