@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Douglas Thrift")]
 [assembly: AssemblyProduct("SSH Handler")]
-[assembly: AssemblyCopyright("Copyright 2013 Douglas Thrift")]
+[assembly: AssemblyCopyright("Copyright 2014 Douglas Thrift")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
