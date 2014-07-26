@@ -1,8 +1,8 @@
-﻿// Handler
+﻿// Setting
 //
 // Douglas Thrift
 //
-// Handler.cs
+// Setting.cs
 
 /*  Copyright 2014 Douglas Thrift
  *
@@ -19,25 +19,18 @@
  *  limitations under the License.
  */
 
-using System;
-using System.Collections.Generic;
-
-public interface Handler
+public struct Setting
 {
-    IList<string> Options
-    {
-        get;
-    }
-    IList<string> Usages
-    {
-        get;
-    }
-    IList<Setting> Settings
-    {
-        get;
-    }
+    public string option;
+    public string name;
+    public SettingType type;
+    public bool handler;
 
-    MatchOption DoMatch(string arg);
-    bool Find();
-    void Execute(Uri uri, string user, string password);
+    public Setting(string option, string name, SettingType type, bool handler = false)
+    {
+        this.option = option;
+        this.name = name;
+        this.type = type;
+        this.handler = handler;
+    }
 }

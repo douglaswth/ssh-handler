@@ -70,6 +70,20 @@ public class OpensshHandler : AbstractHandler, Handler
         }
     }
 
+    public IList<Setting> Settings
+    {
+        get
+        {
+            return new Setting[]
+            {
+                new Setting("/openssh", "OpenSSH", SettingType.OptionalPath, true),
+                new Setting("/cygwin", "Cygwin", SettingType.OptionalYesNoDirectory),
+                new Setting("/mintty", "MinTTY", SettingType.OptionalYesNoExecutable),
+                new Setting("/bash", "Bash", SettingType.OptionalYesNoExecutable),
+            };
+        }
+    }
+
     public MatchOption DoMatch(string arg)
     {
         Match match;

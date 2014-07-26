@@ -48,6 +48,14 @@ public class PuttyHandler : AbstractHandler, Handler
         }
     }
 
+    public IList<Setting> Settings
+    {
+        get
+        {
+            return new Setting[] { new Setting("/putty", "PuTTY", SettingType.OptionalPath, true) };
+        }
+    }
+
     public MatchOption DoMatch(string arg)
     {
         Match match;

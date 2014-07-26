@@ -9,6 +9,20 @@
     ResizeMode="NoResize"
     >
     <Grid>
+        <ScrollViewer
+            VerticalAlignment="Top"
+            HorizontalAlignment="Left"
+            Height="430"
+            Width="410"
+            Margin="6,7,0,0"
+            VerticalScrollBarVisibility="Auto"
+            >
+            <StackPanel>
+                <RadioButton
+                    Content="Find the first suitable SSH application"
+                    />
+            </StackPanel>
+        </ScrollViewer>
         <StackPanel
             VerticalAlignment="Bottom"
             Orientation="Horizontal"
@@ -20,6 +34,7 @@
                 Margin="0,0,6,0"
                 Width="73"
                 IsDefault="True"
+                Click="OkButton_Click"
                 />
             <Button
                 Content="Cancel"
@@ -32,6 +47,7 @@
                 Margin="0,0,0,0"
                 Width="73"
                 IsEnabled="False"
+                Click="ApplyButton_Click"
                 />
         </StackPanel>
     </Grid>

@@ -1,8 +1,8 @@
-﻿// Handler
+﻿// Setting Type
 //
 // Douglas Thrift
 //
-// Handler.cs
+// SettingType.cs
 
 /*  Copyright 2014 Douglas Thrift
  *
@@ -19,25 +19,9 @@
  *  limitations under the License.
  */
 
-using System;
-using System.Collections.Generic;
-
-public interface Handler
+public enum SettingType
 {
-    IList<string> Options
-    {
-        get;
-    }
-    IList<string> Usages
-    {
-        get;
-    }
-    IList<Setting> Settings
-    {
-        get;
-    }
-
-    MatchOption DoMatch(string arg);
-    bool Find();
-    void Execute(Uri uri, string user, string password);
+    OptionalPath,
+    OptionalYesNoExecutable,
+    OptionalYesNoDirectory,
 }
