@@ -26,15 +26,15 @@ from its installer or available in directory in the `PATH` environment variable.
 
 The requirements for building SSH Handler and its installer are:
 
-* [Visual Studio Express 2012 for Windows Desktop]
-(http://www.microsoft.com/visualstudio/eng/products/visual-studio-express-for-windows-desktop)
+* [Visual Studio Express 2013 for Windows Desktop]
+(http://www.visualstudio.com/downloads/download-visual-studio-vs#d-express-windows-desktop)
 * [NSIS (Nullsoft Scriptable Install System)](http://nsis.sourceforge.net/)
 * [Microsoft .NET Framework 4 Client Profile (Web Installer)]
 (http://www.microsoft.com/en-us/download/details.aspx?id=17113)
 
 ## License
 
-    Copyright 2013 Douglas Thrift
+    Copyright 2014 Douglas Thrift
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
