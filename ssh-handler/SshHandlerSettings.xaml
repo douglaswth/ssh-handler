@@ -17,10 +17,15 @@
             Margin="6,7,0,0"
             VerticalScrollBarVisibility="Auto"
             >
-            <StackPanel>
-                <RadioButton
-                    Content="Find the first suitable SSH application"
-                    />
+            <StackPanel Name="SettingsPanel">
+                <GroupBox>
+                    <GroupBox.Header>
+                        <RadioButton
+                            Content="Find the first suitable SSH application"
+                            GroupName="Handlers"
+                            />
+                    </GroupBox.Header>
+                </GroupBox>
             </StackPanel>
         </ScrollViewer>
         <StackPanel

@@ -27,6 +27,19 @@ using System.Text.RegularExpressions;
 
 public abstract class AbstractHandler
 {
+    public abstract IList<Setting> Settings
+    {
+        get;
+    }
+
+    public Setting Setting
+    {
+        get
+        {
+            return Settings.Single(setting => setting.handler);
+        }
+    }
+
     protected string FindInPath(string program)
     {
         foreach (string location in Environment.GetEnvironmentVariable("PATH").Split(Path.PathSeparator))

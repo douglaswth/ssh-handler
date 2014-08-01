@@ -70,7 +70,7 @@ public class OpensshHandler : AbstractHandler, Handler
         }
     }
 
-    public IList<Setting> Settings
+    public override IList<Setting> Settings
     {
         get
         {

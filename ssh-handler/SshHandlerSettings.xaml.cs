@@ -19,15 +19,35 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
 
 public partial class SshHandlerSettings : Window
 {
-    public SshHandlerSettings()
+    public SshHandlerSettings(IList<Handler> handlers)
     {
         InitializeComponent();
+
+        foreach (Handler handler in handlers)
+        {
+            GroupBox box = new GroupBox();
+            RadioButton button = new RadioButton();
+            StackPanel panel = new StackPanel();
+
+            button.Content = handler.Setting.name;
+            button.GroupName = "Handlers";
+
+            foreach (Setting setting in handler.Settings)
+                panel.Children.Add(ControlForSetting(setting));
+
+            box.Header = button;
+            box.Content = panel;
+
+            SettingsPanel.Children.Add(box);
+        }
     }
 
     private void OkButton_Click(object sender, RoutedEventArgs e)
@@ -47,5 +67,14 @@ public partial class SshHandlerSettings : Window
         string[] arguments = { "/openssh", "/bash" };
 
         Debug.WriteLine("\"{0}\" {1} \"%1\"", program, string.Join(" ", arguments));
+    }
+
+    private UIElement ControlForSetting(Setting setting)
+    {
+        Label label = new Label();
+
+        label.Content = string.Format("{0} {1}", setting.name, setting.type);
+
+        return label;
     }
 }

@@ -36,6 +36,10 @@ public interface Handler
     {
         get;
     }
+    Setting Setting
+    {
+        get;
+    }
 
     MatchOption DoMatch(string arg);
     bool Find();
