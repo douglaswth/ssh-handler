@@ -1,7 +1,7 @@
 # SSH Handler
 
-[![Release](https://img.shields.io/github/release/douglaswth/ssh-handler.svg?style=flat)][release]
-[![Issues](https://img.shields.io/github/issues/douglaswth/ssh-handler.svg?style=flat)][issues]
+[![Release](https://img.shields.io/github/release/douglaswth/ssh-handler.svg?style=flat-square)][release]
+[![Issues](https://img.shields.io/github/issues/douglaswth/ssh-handler.svg?style=flat-square)][issues]
 
 [release]: https://github.com/douglaswth/ssh-handler/releases/latest
 [issues]: https://github.com/douglaswth/ssh-handler/issues
