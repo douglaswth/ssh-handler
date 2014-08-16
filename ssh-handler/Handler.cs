@@ -24,15 +24,15 @@ using System.Collections.Generic;
 
 public interface Handler
 {
-    IList<string> Options
+    IEnumerable<string> Options
     {
         get;
     }
-    IList<string> Usages
+    IEnumerable<string> Usages
     {
         get;
     }
-    IList<Setting> Settings
+    IEnumerable<Setting> Settings
     {
         get;
     }

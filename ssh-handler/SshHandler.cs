@@ -99,7 +99,7 @@ public class SshHandler
 
     private static int Settings()
     {
-        SshHandlerSettings settings = new SshHandlerSettings(handlers);
+        SettingsDialog settings = new SettingsDialog(handlers);
         Nullable<bool> result = settings.ShowDialog();
         Debug.WriteLine("Settings result: {0}", result, null);
 

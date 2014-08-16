@@ -21,7 +21,7 @@
 
 public enum SettingType
 {
-    OptionalPath,
+    OptionalExecutable,
     OptionalYesNoExecutable,
     OptionalYesNoDirectory,
 }

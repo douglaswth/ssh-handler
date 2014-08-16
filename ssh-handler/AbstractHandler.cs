@@ -27,7 +27,23 @@ using System.Text.RegularExpressions;
 
 public abstract class AbstractHandler
 {
-    public abstract IList<Setting> Settings
+    public IEnumerable<string> Options
+    {
+        get
+        {
+            return Settings.Select(setting => setting.pattern);
+        }
+    }
+
+    public IEnumerable<string> Usages
+    {
+        get
+        {
+            return Settings.Select(setting => setting.usage);
+        }
+    }
+
+    public abstract IEnumerable<Setting> Settings
     {
         get;
     }

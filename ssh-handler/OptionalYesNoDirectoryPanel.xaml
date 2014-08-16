@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<StackPanel
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
+    x:Class="OptionalYesNoDirectoryPanel"
+    >
+    <Label>
+        <TextBlock
+            Name="SettingUsage"
+            TextWrapping="Wrap"
+            />
+    </Label>
+    <StackPanel
+        Orientation="Horizontal"
+        >
+        <CheckBox
+            Name="SettingCheckBox"
+            Content="Executable:"
+            />
+        <RadioButton
+            Name="SettingYes"
+            Content="Yes"
+            />
+        <RadioButton
+            Name="SettingNo"
+            Content="No"
+            />
+        <RadioButton
+            Name="SettingDirectory"
+            Content="Directory:"
+            />
+        <toolkit:AutoCompleteBox
+            Name="SettingDirectoryBox"
+            />
+        <Button
+            Name="SettingDirectoryBrowse"
+            Content="Browse..."
+            />
+    </StackPanel>
+</StackPanel>

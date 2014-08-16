@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<StackPanel
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
+    x:Class="OptionalExecutablePanel"
+    >
+    <Label>
+        <TextBlock
+            Name="SettingUsage"
+            TextWrapping="Wrap"
+            />
+    </Label>
+    <StackPanel
+        Orientation="Horizontal"
+        >
+        <CheckBox
+            Name="SettingCheckBox"
+            Content="Executable:"
+            />
+        <toolkit:AutoCompleteBox
+            Name="SettingExecutableBox"
+            />
+        <Button
+            Name="SettingExecutableBrowse"
+            Content="Browse..."
+            />
+    </StackPanel>
+</StackPanel>

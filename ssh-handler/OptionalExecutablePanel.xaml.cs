@@ -1,8 +1,8 @@
-﻿// Setting
+﻿// SSH Handler Settings
 //
 // Douglas Thrift
 //
-// Setting.cs
+// OptionalExecutablePanel.xaml.cs
 
 /*  Copyright 2014 Douglas Thrift
  *
@@ -19,22 +19,21 @@
  *  limitations under the License.
  */
 
-public struct Setting
-{
-    public string option;
-    public string pattern;
-    public string name;
-    public string usage;
-    public SettingType type;
-    public bool handler;
+using System.Windows.Controls;
 
-    public Setting(string option, string pattern, string name, string usage, SettingType type, bool handler = false)
+public partial class OptionalExecutablePanel : StackPanel
+{
+    private Setting setting;
+
+    public OptionalExecutablePanel(Setting setting)
     {
-        this.option = option;
-        this.pattern = pattern;
-        this.name = name;
-        this.usage = usage;
-        this.type = type;
-        this.handler = handler;
+        InitializeComponent();
+
+        this.setting = setting;
+
+        if (!setting.handler)
+            SettingCheckBox.Content = setting.name + " Executable:";
+
+        SettingUsage.Text = setting.usage + ":";
     }
 }

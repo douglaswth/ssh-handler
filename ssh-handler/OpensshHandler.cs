@@ -42,44 +42,16 @@ public class OpensshHandler : AbstractHandler, Handler
     string minttyPath = null;
     string bashPath = null;
 
-    public IList<string> Options
-    {
-        get
-        {
-            return new string[]
-            {
-                "/openssh[:<openssh-path>]",
-                "/cygwin[:(yes|no|<cygwin-path>)]",
-                "/mintty[:(yes|no|<mintty-path>)]",
-                "/bash[:(yes|no|<bash-path>)]",
-            };
-        }
-    }
-
-    public IList<string> Usages
-    {
-        get
-        {
-            return new string[]
-            {
-                "Use OpenSSH to connect",
-                "Use Cygwin for OpenSSH (by default, Cygwin will be used for OpenSSH if detected)",
-                "Use MinTTY for OpenSSH (by default, MinTTY will be used for OpenSSH if detected)",
-                "Use Bash login shell for use with ssh-agent",
-            };
-        }
-    }
-
-    public override IList<Setting> Settings
+    public override IEnumerable<Setting> Settings
     {
         get
         {
             return new Setting[]
             {
-                new Setting("/openssh", "OpenSSH", SettingType.OptionalPath, true),
-                new Setting("/cygwin", "Cygwin", SettingType.OptionalYesNoDirectory),
-                new Setting("/mintty", "MinTTY", SettingType.OptionalYesNoExecutable),
-                new Setting("/bash", "Bash", SettingType.OptionalYesNoExecutable),
+                new Setting("/openssh", "/openssh[:<openssh-path>]", "OpenSSH", "Use OpenSSH to connect", SettingType.OptionalExecutable, true),
+                new Setting("/cygwin", "/cygwin[:(yes|no|<cygwin-path>)]", "Cygwin", "Use Cygwin for OpenSSH (by default, Cygwin will be used for OpenSSH if detected)", SettingType.OptionalYesNoDirectory),
+                new Setting("/mintty", "/mintty[:(yes|no|<mintty-path>)]", "MinTTY", "Use MinTTY for OpenSSH (by default, MinTTY will be used for OpenSSH if detected)", SettingType.OptionalYesNoExecutable),
+                new Setting("/bash", "/bash[:(yes|no|<bash-path>)]", "Bash", "Use Bash login shell for use with ssh-agent", SettingType.OptionalYesNoExecutable),
             };
         }
     }
