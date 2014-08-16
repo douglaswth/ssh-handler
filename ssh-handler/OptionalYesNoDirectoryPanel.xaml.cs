@@ -1,4 +1,4 @@
-﻿// SSH Handler Settings
+﻿// Optional Yes/No/Directory Panel
 //
 // Douglas Thrift
 //

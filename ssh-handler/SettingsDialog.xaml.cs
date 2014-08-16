@@ -1,4 +1,4 @@
-﻿// SSH Handler Settings
+﻿// Settings Dialog
 //
 // Douglas Thrift
 //

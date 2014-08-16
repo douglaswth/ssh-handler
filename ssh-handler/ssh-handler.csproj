@@ -94,6 +94,7 @@
     <Compile Include="PuttyHandler.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="SettingType.cs" />
+    <Compile Include="Shell32.cs" />
     <Compile Include="SshHandler.cs" />
     <Compile Include="SettingsDialog.xaml.cs">
       <DependentUpon>SettingsDialog.xaml</DependentUpon>
