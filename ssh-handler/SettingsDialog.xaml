@@ -23,6 +23,7 @@
                         <RadioButton
                             Content="Find the first suitable SSH application"
                             GroupName="Handlers"
+                            IsChecked="True"
                             />
                     </GroupBox.Header>
                 </GroupBox>

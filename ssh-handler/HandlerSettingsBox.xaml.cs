@@ -30,7 +30,7 @@ public partial class HandlerSettingsBox : GroupBox
         InitializeComponent();
 
         this.handler = handler;
-        HandlerRadioButton.Content = handler.Setting.name;
+        HandlerRadioButton.Content = handler.Setting.usage;
 
         foreach (Setting setting in handler.Settings)
             switch (setting.type)
@@ -45,5 +45,15 @@ public partial class HandlerSettingsBox : GroupBox
                 SettingsPanel.Children.Add(new OptionalYesNoDirectoryPanel(setting));
                 break;
             }
+    }
+
+    private void HandlerRadioButton_Checked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingsPanel.IsEnabled = true;
+    }
+
+    private void HandlerRadioButton_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingsPanel.IsEnabled = false;
     }
 }

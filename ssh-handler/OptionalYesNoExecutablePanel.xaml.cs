@@ -30,10 +30,27 @@ public partial class OptionalYesNoExecutablePanel : StackPanel
         InitializeComponent();
 
         this.setting = setting;
-
-        if (!setting.handler)
-            SettingCheckBox.Content = setting.name + ":";
-
+        SettingCheckBox.Content = setting.name + ":";
         SettingUsage.Text = setting.usage + ":";
+    }
+
+    private void SettingCheckBox_Checked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingRadioPanel.IsEnabled = true;
+    }
+
+    private void SettingCheckBox_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingRadioPanel.IsEnabled = false;
+    }
+
+    private void SettingExecutable_Checked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingExecutablePanel.IsEnabled = true;
+    }
+
+    private void SettingExecutable_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingExecutablePanel.IsEnabled = false;
     }
 }

@@ -31,9 +31,22 @@ public partial class OptionalExecutablePanel : StackPanel
 
         this.setting = setting;
 
-        if (!setting.handler)
+        if (setting.handler)
+            SettingUsage.Text = "Use a specific executable for " + setting.name + ":";
+        else
+        {
             SettingCheckBox.Content = setting.name + " Executable:";
+            SettingUsage.Text = setting.usage + ":";
+        }
+    }
 
-        SettingUsage.Text = setting.usage + ":";
+    private void SettingCheckBox_Checked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingExecutablePanel.IsEnabled = true;
+    }
+
+    private void SettingCheckBox_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingExecutablePanel.IsEnabled = false;
     }
 }

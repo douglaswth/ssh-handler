@@ -9,9 +9,12 @@
             GroupName="Handlers"
             Name="HandlerRadioButton"
             Content="Handler"
+            Checked="HandlerRadioButton_Checked"
+            Unchecked="HandlerRadioButton_Unchecked"
             />
     </GroupBox.Header>
     <StackPanel
         Name="SettingsPanel"
+        IsEnabled="False"
         />
 </GroupBox>

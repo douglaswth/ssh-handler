@@ -30,10 +30,27 @@ public partial class OptionalYesNoDirectoryPanel : StackPanel
         InitializeComponent();
 
         this.setting = setting;
-
-        if (!setting.handler)
-            SettingCheckBox.Content = setting.name + ":";
-
+        SettingCheckBox.Content = setting.name + ":";
         SettingUsage.Text = setting.usage + ":";
+    }
+
+    private void SettingCheckBox_Checked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingRadioPanel.IsEnabled = true;
+    }
+
+    private void SettingCheckBox_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingRadioPanel.IsEnabled = false;
+    }
+
+    private void SettingDirectory_Checked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingDirectoryPanel.IsEnabled = true;
+    }
+
+    private void SettingDirectory_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingDirectoryPanel.IsEnabled = false;
     }
 }

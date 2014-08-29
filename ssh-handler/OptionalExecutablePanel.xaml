@@ -17,13 +17,21 @@
         <CheckBox
             Name="SettingCheckBox"
             Content="Executable:"
+            Checked="SettingCheckBox_Checked"
+            Unchecked="SettingCheckBox_Unchecked"
             />
-        <toolkit:AutoCompleteBox
-            Name="SettingExecutableBox"
-            />
-        <Button
-            Name="SettingExecutableBrowse"
-            Content="Browse..."
-            />
+        <StackPanel
+            Name="SettingExecutablePanel"
+            Orientation="Horizontal"
+            IsEnabled="False"
+            >
+            <toolkit:AutoCompleteBox
+                Name="SettingExecutableBox"
+                />
+            <Button
+                Name="SettingExecutableBrowse"
+                Content="Browse..."
+                />
+        </StackPanel>
     </StackPanel>
 </StackPanel>

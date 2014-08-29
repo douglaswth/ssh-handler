@@ -16,26 +16,43 @@
         >
         <CheckBox
             Name="SettingCheckBox"
-            Content="Executable:"
-            />
-        <RadioButton
-            Name="SettingYes"
-            Content="Yes"
-            />
-        <RadioButton
-            Name="SettingNo"
-            Content="No"
-            />
-        <RadioButton
-            Name="SettingDirectory"
             Content="Directory:"
+            Checked="SettingCheckBox_Checked"
+            Unchecked="SettingCheckBox_Unchecked"
             />
-        <toolkit:AutoCompleteBox
-            Name="SettingDirectoryBox"
-            />
-        <Button
-            Name="SettingDirectoryBrowse"
-            Content="Browse..."
-            />
+        <StackPanel
+            Name="SettingRadioPanel"
+            Orientation="Horizontal"
+            IsEnabled="False"
+            >
+            <RadioButton
+                Name="SettingYes"
+                Content="Yes"
+                IsChecked="True"
+                />
+            <RadioButton
+                Name="SettingNo"
+                Content="No"
+                />
+            <RadioButton
+                Name="SettingDirectory"
+                Content="Directory:"
+                Checked="SettingDirectory_Checked"
+                Unchecked="SettingDirectory_Unchecked"
+                />
+            <StackPanel
+                Name="SettingDirectoryPanel"
+                Orientation="Horizontal"
+                IsEnabled="False"
+                >
+                <toolkit:AutoCompleteBox
+                    Name="SettingDirectoryBox"
+                    />
+                <Button
+                    Name="SettingDirectoryBrowse"
+                    Content="Browse..."
+                    />
+            </StackPanel>
+        </StackPanel>
     </StackPanel>
 </StackPanel>

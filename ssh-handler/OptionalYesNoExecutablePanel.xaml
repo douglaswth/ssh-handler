@@ -17,25 +17,42 @@
         <CheckBox
             Name="SettingCheckBox"
             Content="Executable:"
+            Checked="SettingCheckBox_Checked"
+            Unchecked="SettingCheckBox_Unchecked"
             />
-        <RadioButton
-            Name="SettingYes"
-            Content="Yes"
-            />
-        <RadioButton
-            Name="SettingNo"
-            Content="No"
-            />
-        <RadioButton
-            Name="SettingExecutable"
-            Content="Executable:"
-            />
-        <toolkit:AutoCompleteBox
-            Name="SettingExecutableBox"
-            />
-        <Button
-            Name="SettingExecutableBrowse"
-            Content="Browse..."
-            />
+        <StackPanel
+            Name="SettingRadioPanel"
+            Orientation="Horizontal"
+            IsEnabled="False"
+            >
+            <RadioButton
+                Name="SettingYes"
+                Content="Yes"
+                IsChecked="True"
+                />
+            <RadioButton
+                Name="SettingNo"
+                Content="No"
+                />
+            <RadioButton
+                Name="SettingExecutable"
+                Content="Executable:"
+                Checked="SettingExecutable_Checked"
+                Unchecked="SettingExecutable_Unchecked"
+                />
+            <StackPanel
+                Name="SettingExecutablePanel"
+                Orientation="Horizontal"
+                IsEnabled="False"
+                >
+                <toolkit:AutoCompleteBox
+                    Name="SettingExecutableBox"
+                    />
+                <Button
+                    Name="SettingExecutableBrowse"
+                    Content="Browse..."
+                    />
+            </StackPanel>
+        </StackPanel>
     </StackPanel>
 </StackPanel>
