@@ -19,13 +19,14 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Windows.Controls;
 
 public partial class HandlerSettingsBox : GroupBox
 {
     private Handler handler;
 
-    public HandlerSettingsBox(Handler handler)
+    public HandlerSettingsBox(Handler handler, IEnumerable<string> options)
     {
         InitializeComponent();
 
@@ -36,13 +37,13 @@ public partial class HandlerSettingsBox : GroupBox
             switch (setting.type)
             {
             case SettingType.OptionalExecutable:
-                SettingsPanel.Children.Add(new OptionalExecutablePanel(setting));
+                SettingsPanel.Children.Add(new OptionalExecutablePanel(setting, options));
                 break;
             case SettingType.OptionalYesNoExecutable:
-                SettingsPanel.Children.Add(new OptionalYesNoExecutablePanel(setting));
+                SettingsPanel.Children.Add(new OptionalYesNoExecutablePanel(setting, options));
                 break;
             case SettingType.OptionalYesNoDirectory:
-                SettingsPanel.Children.Add(new OptionalYesNoDirectoryPanel(setting));
+                SettingsPanel.Children.Add(new OptionalYesNoDirectoryPanel(setting, options));
                 break;
             }
     }

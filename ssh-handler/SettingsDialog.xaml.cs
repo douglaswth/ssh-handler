@@ -21,9 +21,11 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Win32;
 
 public partial class SettingsDialog : Window
 {
@@ -31,8 +33,22 @@ public partial class SettingsDialog : Window
     {
         InitializeComponent();
 
+        IEnumerable<string> options = new string[0];
+
+        using (RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default), key = baseKey.OpenSubKey(@"ssh\shell\open\command"))
+            if (key != null)
+            {
+                string command = (string)key.GetValue(null);
+                if (!string.IsNullOrWhiteSpace(command))
+                {
+                    var args = Shell32.CommandLineToArgv(command);
+
+                    options = args.Skip(1).TakeWhile(arg => arg != "%1");
+                }
+            }
+
         foreach (Handler handler in handlers)
-            SettingsPanel.Children.Add(new HandlerSettingsBox(handler));
+            SettingsPanel.Children.Add(new HandlerSettingsBox(handler, options));
     }
 
     private void OkButton_Click(object sender, RoutedEventArgs e)

@@ -19,13 +19,14 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Windows.Controls;
 
 public partial class OptionalYesNoExecutablePanel : StackPanel
 {
     private Setting setting;
 
-    public OptionalYesNoExecutablePanel(Setting setting)
+    public OptionalYesNoExecutablePanel(Setting setting, IEnumerable<string> options)
     {
         InitializeComponent();
 

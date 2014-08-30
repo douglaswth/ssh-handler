@@ -19,13 +19,14 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Windows.Controls;
 
 public partial class OptionalYesNoDirectoryPanel : StackPanel
 {
     private Setting setting;
 
-    public OptionalYesNoDirectoryPanel(Setting setting)
+    public OptionalYesNoDirectoryPanel(Setting setting, IEnumerable<string> options)
     {
         InitializeComponent();
 
