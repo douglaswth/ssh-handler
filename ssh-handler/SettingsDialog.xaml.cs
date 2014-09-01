@@ -19,6 +19,7 @@
  *  limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -53,8 +54,8 @@ public partial class SettingsDialog : Window
 
     private void OkButton_Click(object sender, RoutedEventArgs e)
     {
-        Apply();
-        DialogResult = true;
+        if (Apply())
+            DialogResult = true;
     }
 
     private void ApplyButton_Click(object sender, RoutedEventArgs e)
@@ -62,11 +63,32 @@ public partial class SettingsDialog : Window
         Apply();
     }
 
-    private void Apply()
+    private bool Apply()
     {
-        string program = Assembly.GetEntryAssembly().Location;
-        string[] arguments = { "/openssh", "/bash" };
+        var args = new List<string>();
 
-        Debug.WriteLine("\"{0}\" {1} \"%1\"", program, string.Join(" ", arguments));
+        args.Add(Assembly.GetEntryAssembly().Location);
+
+        foreach (GroupBox box in SettingsPanel.Children)
+            if (((RadioButton)box.Header).IsChecked.Value)
+            {
+                if (box is HandlerSettingsBox)
+                    try
+                    {
+                        args.AddRange(((HandlerSettingsBox)box).Options);
+                    }
+                    catch (Exception exception)
+                    {
+                        MessageBox.Show(this, exception.Message, "SSH Handler Settings Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return false;
+                    }
+                break;
+            }
+
+        args.Add("\"%1\"");
+
+        Debug.WriteLine("{0}", string.Join(" ", args), null);
+
+        return true;
     }
 }

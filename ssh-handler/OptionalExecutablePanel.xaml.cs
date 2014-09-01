@@ -19,10 +19,13 @@
  *  limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 
-public partial class OptionalExecutablePanel : StackPanel
+public partial class OptionalExecutablePanel : StackPanel, SettingPanel
 {
     private Setting setting;
 
@@ -38,6 +41,48 @@ public partial class OptionalExecutablePanel : StackPanel
         {
             SettingCheckBox.Content = setting.name + " Executable:";
             SettingUsage.Text = setting.usage + ":";
+        }
+
+        Regex regex = new Regex(@"^(?:/|--?)" + setting.option.Substring(1) + @"(?:[:=](?<executable>.*))?$");
+
+        foreach (string option in options)
+        {
+            Match match = regex.Match(option);
+            if (match.Success)
+            {
+                Group group = match.Groups["executable"];
+                if (group.Success)
+                {
+                    SettingCheckBox.IsChecked = true;
+                    SettingExecutableBox.Text = group.Value;
+                }
+            }
+        }
+    }
+
+    public bool IsSelected
+    {
+        get
+        {
+            return setting.handler || SettingCheckBox.IsChecked.Value;
+        }
+    }
+
+    public string Option
+    {
+        get
+        {
+            if (SettingCheckBox.IsChecked.Value)
+            {
+                string executable = SettingExecutableBox.Text;
+
+                if (File.GetAttributes(executable).HasFlag(FileAttributes.Directory))
+                    throw new Exception("'" + executable + "' is not a file.");
+
+                return setting.option + ":" + executable;
+            }
+            else
+                return setting.option;
         }
     }
 

@@ -20,6 +20,7 @@
  */
 
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Windows.Controls;
 
 public partial class HandlerSettingsBox : GroupBox
@@ -46,6 +47,26 @@ public partial class HandlerSettingsBox : GroupBox
                 SettingsPanel.Children.Add(new OptionalYesNoDirectoryPanel(setting, options));
                 break;
             }
+
+        Regex regex = new Regex(@"^(?:/|--?)" + handler.Setting.option.Substring(1) + @"(?:[:=].*)?$");
+
+        foreach (string option in options)
+            if (regex.IsMatch(option))
+                HandlerRadioButton.IsChecked = true;
+    }
+
+    public IEnumerable<string> Options
+    {
+        get
+        {
+            var options = new List<string>();
+
+            foreach (SettingPanel panel in SettingsPanel.Children)
+                if (panel.IsSelected)
+                    options.Add(panel.Option);
+
+            return options;
+        }
     }
 
     private void HandlerRadioButton_Checked(object sender, System.Windows.RoutedEventArgs e)
