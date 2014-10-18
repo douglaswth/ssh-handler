@@ -112,4 +112,14 @@ public partial class OptionalYesNoDirectoryPanel : StackPanel, SettingPanel
     {
         SettingDirectoryPanel.IsEnabled = false;
     }
+
+    private void SettingDirectoryBrowse_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingPanelHelper.DoDirectoryBrowseClick(SettingDirectoryBox);
+    }
+
+    private void SettingDirectoryBox_Populating(object sender, PopulatingEventArgs e)
+    {
+        SettingPanelHelper.DoDirectoryBoxPopulating(SettingDirectoryBox);
+    }
 }

@@ -94,6 +94,7 @@
     <Compile Include="PuttyHandler.cs" />
     <Compile Include="Setting.cs" />
     <Compile Include="SettingPanel.cs" />
+    <Compile Include="SettingPanelHelper.cs" />
     <Compile Include="SettingType.cs" />
     <Compile Include="Shell32.cs" />
     <Compile Include="SshHandler.cs" />

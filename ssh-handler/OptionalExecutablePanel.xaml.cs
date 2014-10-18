@@ -95,4 +95,14 @@ public partial class OptionalExecutablePanel : StackPanel, SettingPanel
     {
         SettingExecutablePanel.IsEnabled = false;
     }
+
+    private void SettingExecutableBrowse_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        SettingPanelHelper.DoExecutableBrowseClick(SettingExecutableBox);
+    }
+
+    private void SettingExecutableBox_Populating(object sender, PopulatingEventArgs e)
+    {
+        SettingPanelHelper.DoExecutableBoxPopulating(SettingExecutableBox);
+    }
 }

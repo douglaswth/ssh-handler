@@ -27,10 +27,12 @@
             >
             <toolkit:AutoCompleteBox
                 Name="SettingExecutableBox"
+                Populating="SettingExecutableBox_Populating"
                 />
             <Button
                 Name="SettingExecutableBrowse"
                 Content="Browse..."
+                Click="SettingExecutableBrowse_Click"
                 />
         </StackPanel>
     </StackPanel>

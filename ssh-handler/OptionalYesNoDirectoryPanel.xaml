@@ -47,10 +47,12 @@
                 >
                 <toolkit:AutoCompleteBox
                     Name="SettingDirectoryBox"
+                    Populating="SettingDirectoryBox_Populating"
                     />
                 <Button
                     Name="SettingDirectoryBrowse"
                     Content="Browse..."
+                    Click="SettingDirectoryBrowse_Click"
                     />
             </StackPanel>
         </StackPanel>
