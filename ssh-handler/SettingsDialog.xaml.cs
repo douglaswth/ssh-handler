@@ -49,7 +49,9 @@ public partial class SettingsDialog : Window
             }
 
         foreach (Handler handler in handlers)
-            SettingsPanel.Children.Add(new HandlerSettingsBox(handler, options));
+            SettingsPanel.Children.Add(new HandlerSettingsBox(handler, options, ApplyButton));
+
+        ApplyButton.IsEnabled = false;
     }
 
     private void OkButton_Click(object sender, RoutedEventArgs e)
@@ -60,7 +62,13 @@ public partial class SettingsDialog : Window
 
     private void ApplyButton_Click(object sender, RoutedEventArgs e)
     {
-        Apply();
+        if (Apply())
+            ApplyButton.IsEnabled = false;
+    }
+
+    private void RadioButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+        ApplyButton.IsEnabled = true;
     }
 
     private bool Apply()

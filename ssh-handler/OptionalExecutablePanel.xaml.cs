@@ -28,11 +28,13 @@ using System.Windows.Controls;
 public partial class OptionalExecutablePanel : StackPanel, SettingPanel
 {
     private Setting setting;
+    private Button applyButton;
 
-    public OptionalExecutablePanel(Setting setting, IEnumerable<string> options)
+    public OptionalExecutablePanel(Setting setting, IEnumerable<string> options, Button applyButton)
     {
         InitializeComponent();
 
+        this.applyButton = applyButton;
         this.setting = setting;
 
         if (setting.handler)
@@ -89,11 +91,13 @@ public partial class OptionalExecutablePanel : StackPanel, SettingPanel
     private void SettingCheckBox_Checked(object sender, System.Windows.RoutedEventArgs e)
     {
         SettingExecutablePanel.IsEnabled = true;
+        applyButton.IsEnabled = true;
     }
 
     private void SettingCheckBox_Unchecked(object sender, System.Windows.RoutedEventArgs e)
     {
         SettingExecutablePanel.IsEnabled = false;
+        applyButton.IsEnabled = true;
     }
 
     private void SettingExecutableBrowse_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -104,5 +108,10 @@ public partial class OptionalExecutablePanel : StackPanel, SettingPanel
     private void SettingExecutableBox_Populating(object sender, PopulatingEventArgs e)
     {
         SettingPanelHelper.DoExecutableBoxPopulating(SettingExecutableBox);
+    }
+
+    private void SettingExecutableBox_TextChanged(object sender, System.Windows.RoutedEventArgs e)
+    {
+        applyButton.IsEnabled = true;
     }
 }

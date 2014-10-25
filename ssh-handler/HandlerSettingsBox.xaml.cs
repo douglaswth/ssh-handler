@@ -26,11 +26,13 @@ using System.Windows.Controls;
 public partial class HandlerSettingsBox : GroupBox
 {
     private Handler handler;
+    private Button applyButton;
 
-    public HandlerSettingsBox(Handler handler, IEnumerable<string> options)
+    public HandlerSettingsBox(Handler handler, IEnumerable<string> options, Button applyButton)
     {
         InitializeComponent();
 
+        this.applyButton = applyButton;
         this.handler = handler;
         HandlerRadioButton.Content = handler.Setting.usage;
 
@@ -38,13 +40,13 @@ public partial class HandlerSettingsBox : GroupBox
             switch (setting.type)
             {
             case SettingType.OptionalExecutable:
-                SettingsPanel.Children.Add(new OptionalExecutablePanel(setting, options));
+                SettingsPanel.Children.Add(new OptionalExecutablePanel(setting, options, applyButton));
                 break;
             case SettingType.OptionalYesNoExecutable:
-                SettingsPanel.Children.Add(new OptionalYesNoExecutablePanel(setting, options));
+                SettingsPanel.Children.Add(new OptionalYesNoExecutablePanel(setting, options, applyButton));
                 break;
             case SettingType.OptionalYesNoDirectory:
-                SettingsPanel.Children.Add(new OptionalYesNoDirectoryPanel(setting, options));
+                SettingsPanel.Children.Add(new OptionalYesNoDirectoryPanel(setting, options, applyButton));
                 break;
             }
 
@@ -77,5 +79,6 @@ public partial class HandlerSettingsBox : GroupBox
     private void HandlerRadioButton_Unchecked(object sender, System.Windows.RoutedEventArgs e)
     {
         SettingsPanel.IsEnabled = false;
+        applyButton.IsEnabled = true;
     }
 }

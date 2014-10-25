@@ -28,11 +28,13 @@ using System.Windows.Controls;
 public partial class OptionalYesNoExecutablePanel : StackPanel, SettingPanel
 {
     private Setting setting;
+    private Button applyButton;
 
-    public OptionalYesNoExecutablePanel(Setting setting, IEnumerable<string> options)
+    public OptionalYesNoExecutablePanel(Setting setting, IEnumerable<string> options, Button applyButton)
     {
         InitializeComponent();
 
+        this.applyButton = applyButton;
         this.setting = setting;
         SettingCheckBox.Content = setting.name + ":";
         SettingUsage.Text = setting.usage + ":";
@@ -96,11 +98,23 @@ public partial class OptionalYesNoExecutablePanel : StackPanel, SettingPanel
     private void SettingCheckBox_Checked(object sender, System.Windows.RoutedEventArgs e)
     {
         SettingRadioPanel.IsEnabled = true;
+        applyButton.IsEnabled = true;
     }
 
     private void SettingCheckBox_Unchecked(object sender, System.Windows.RoutedEventArgs e)
     {
         SettingRadioPanel.IsEnabled = false;
+        applyButton.IsEnabled = true;
+    }
+
+    private void SettingYes_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        applyButton.IsEnabled = true;
+    }
+
+    private void SettingNo_Unchecked(object sender, System.Windows.RoutedEventArgs e)
+    {
+        applyButton.IsEnabled = true;
     }
 
     private void SettingExecutable_Checked(object sender, System.Windows.RoutedEventArgs e)
@@ -111,6 +125,7 @@ public partial class OptionalYesNoExecutablePanel : StackPanel, SettingPanel
     private void SettingExecutable_Unchecked(object sender, System.Windows.RoutedEventArgs e)
     {
         SettingExecutablePanel.IsEnabled = false;
+        applyButton.IsEnabled = true;
     }
 
     private void SettingExecutableBrowse_Click(object sender, System.Windows.RoutedEventArgs e)
@@ -121,5 +136,10 @@ public partial class OptionalYesNoExecutablePanel : StackPanel, SettingPanel
     private void SettingExecutableBox_Populating(object sender, PopulatingEventArgs e)
     {
         SettingPanelHelper.DoExecutableBoxPopulating(SettingExecutableBox);
+    }
+
+    private void SettingExecutableBox_TextChanged(object sender, System.Windows.RoutedEventArgs e)
+    {
+        applyButton.IsEnabled = true;
     }
 }

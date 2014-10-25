@@ -24,6 +24,7 @@
                             Content="Find the first suitable SSH application"
                             GroupName="Handlers"
                             IsChecked="True"
+                            Unchecked="RadioButton_Unchecked"
                             />
                     </GroupBox.Header>
                 </GroupBox>
@@ -49,6 +50,7 @@
                 IsCancel="True"
                 />
             <Button
+                Name="ApplyButton"
                 Content="_Apply"
                 Margin="0,0,0,0"
                 Width="73"

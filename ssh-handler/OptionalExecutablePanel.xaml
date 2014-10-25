@@ -28,6 +28,7 @@
             <toolkit:AutoCompleteBox
                 Name="SettingExecutableBox"
                 Populating="SettingExecutableBox_Populating"
+                TextChanged="SettingExecutableBox_TextChanged"
                 />
             <Button
                 Name="SettingExecutableBrowse"

@@ -29,10 +29,12 @@
                 Name="SettingYes"
                 Content="Yes"
                 IsChecked="True"
+                Unchecked="SettingYes_Unchecked"
                 />
             <RadioButton
                 Name="SettingNo"
                 Content="No"
+                Unchecked="SettingNo_Unchecked"
                 />
             <RadioButton
                 Name="SettingDirectory"
@@ -48,6 +50,7 @@
                 <toolkit:AutoCompleteBox
                     Name="SettingDirectoryBox"
                     Populating="SettingDirectoryBox_Populating"
+                    TextChanged="SettingDirectoryBox_TextChanged"
                     />
                 <Button
                     Name="SettingDirectoryBrowse"
