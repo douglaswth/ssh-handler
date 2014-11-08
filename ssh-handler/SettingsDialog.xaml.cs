@@ -24,29 +24,39 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
 
 public partial class SettingsDialog : Window
 {
-    public SettingsDialog(IList<Handler> handlers)
+    private bool global = false;
+
+    public SettingsDialog(IList<Handler> handlers, string type)
     {
+        switch (type.ToLowerInvariant())
+        {
+        case "global":
+            global = true;
+
+            if (!new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
+                Elevate();
+            break;
+        }
+
         InitializeComponent();
 
-        IEnumerable<string> options = new string[0];
+        Title = "SSH Handler " + (global ? "Global" : "User") + " Settings";
 
-        using (RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default), key = baseKey.OpenSubKey(@"ssh\shell\open\command"))
-            if (key != null)
-            {
-                string command = (string)key.GetValue(null);
-                if (!string.IsNullOrWhiteSpace(command))
-                {
-                    var args = Shell32.CommandLineToArgv(command);
+        IEnumerable<string> options;
 
-                    options = args.Skip(1).TakeWhile(arg => arg != "%1");
-                }
-            }
+        if (global)
+            using (RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default), key = baseKey.OpenSubKey(@"Software\Classes\ssh\shell\open\command"))
+                options = Options(key);
+        else
+            using (RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.ClassesRoot, RegistryView.Default), key = baseKey.OpenSubKey(@"ssh\shell\open\command"))
+                options = Options(key);
 
         foreach (Handler handler in handlers)
             SettingsPanel.Children.Add(new HandlerSettingsBox(handler, options, ApplyButton));
@@ -69,6 +79,28 @@ public partial class SettingsDialog : Window
     private void RadioButton_Unchecked(object sender, RoutedEventArgs e)
     {
         ApplyButton.IsEnabled = true;
+    }
+
+    private void Elevate()
+    {
+        ProcessStartInfo info = new ProcessStartInfo(Assembly.GetEntryAssembly().Location, "/settings:" + (global ? "global" : "user"));
+
+        info.Verb = "runas";
+
+        Process.Start(info);
+        Environment.Exit(0);
+    }
+
+    private IEnumerable<string> Options(RegistryKey key)
+    {
+        if (key != null)
+        {
+            string command = (string)key.GetValue(null);
+            if (!string.IsNullOrWhiteSpace(command))
+                return Shell32.CommandLineToArgv(command).Skip(1).TakeWhile(arg => arg != "%1");
+        }
+
+        return new string[0];
     }
 
     private bool Apply()
@@ -95,7 +127,12 @@ public partial class SettingsDialog : Window
 
         args.Add("\"%1\"");
 
-        Debug.WriteLine("{0}", string.Join(" ", args), null);
+        using (RegistryKey baseKey = RegistryKey.OpenBaseKey(global ? RegistryHive.LocalMachine : RegistryHive.CurrentUser, RegistryView.Default), key = baseKey.CreateSubKey(@"Software\Classes\ssh"), commandKey = key.CreateSubKey(@"shell\open\command"))
+        {
+            key.SetValue(null, "URL:SSH Protocol");
+            key.SetValue("URL Protocol", "");
+            commandKey.SetValue(null, string.Join(" ", args));
+        }
 
         return true;
     }

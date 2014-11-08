@@ -43,7 +43,7 @@ public class SshHandler
         try
         {
             Regex usage = new Regex(@"^(?:/|--?)(?:h|help|usage|\?)$", RegexOptions.IgnoreCase);
-            Regex settings = new Regex(@"^(?:/|--?)settings$", RegexOptions.IgnoreCase);
+            Regex settings = new Regex(@"^(?:/|--?)settings(?:[:=](?<settings_type>.*))?$", RegexOptions.IgnoreCase);
             IList<string> uriParts = null;
 
             foreach (string arg in args)
@@ -52,8 +52,10 @@ public class SshHandler
                     if (usage.IsMatch(arg))
                         return Usage(0);
 
-                    if (settings.IsMatch(arg))
-                        return Settings();
+                    Match match;
+
+                    if ((match = settings.Match(arg)).Success)
+                        return Settings(match.Groups["settings_type"].Value);
 
                     if (!MatchHandler(arg))
                         uriParts = new List<string>(new string[] { arg });
@@ -90,16 +92,16 @@ public class SshHandler
         MessageBox.Show("ssh-handler [/settings] " +
             string.Join(" ", handlers.SelectMany(handler => handler.Options.Select(option => "[" + option + "]"))) +
             " <ssh-url>\n\n" +
-            "/settings -- Show settings dialog\n\n" +
+            "/settings[:(user|global)] -- Show settings dialog\n\n" +
             string.Join("\n\n", handlers.SelectMany(handler => handler.Options.Zip(handler.Usages, (option, usage) => option + " -- " + usage))),
             "SSH Handler Usage",
             MessageBoxButtons.OK, MessageBoxIcon.Information);
         return code;
     }
 
-    private static int Settings()
+    private static int Settings(string type)
     {
-        var settings = new SettingsDialog(handlers);
+        var settings = new SettingsDialog(handlers, type);
         var result = settings.ShowDialog();
         Debug.WriteLine("Settings result: {0}", result, null);
 
