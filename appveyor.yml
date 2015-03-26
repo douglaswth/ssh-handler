@@ -1,2 +1,4 @@
+install:
+- cinst nsis
 before_build:
 - nuget restore
