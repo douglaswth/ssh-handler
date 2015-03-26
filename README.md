@@ -22,7 +22,7 @@ if it is needed:
 (https://github.com/douglaswth/ssh-handler/releases/1.0.0/366/ssh-handler-1.0.0.exe) `867 kB`
 
 [PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/) must be installed
-from its installer or available in directory in the `PATH` environment variable.
+from its installer or available in a directory in the `PATH` environment variable.
 
 ## Building
 
