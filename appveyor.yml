@@ -1,9 +1,13 @@
 version: 1.1.0.{build}
 install:
-- cmd: cinst nsis
+- cmd: cinst nsis -y
 - ps: |
     $url='http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/dotNetFx40_Client_setup.exe'
-    if (!(Test-Path (Split-Path $url -Leaf))) {
+    $exe=(Split-Path $url -Leaf)
+    if (Test-Path $exe) {
+        Write-Output "Using cached $exe"
+    } else {
+        Write-Output "No cached $exe, downloading $url"
         Start-FileDownload $url
     }
 assembly_info:
