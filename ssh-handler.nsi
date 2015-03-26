@@ -18,7 +18,14 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-!define SSH_HANDLER_VERSION "1.1.0"
+!ifndef SSH_HANDLER_VERSION
+!define SSH_HANDLER_VERSION "1.1.0.0"
+!endif
+
+!ifndef SSH_HANDLER_CONFIGURATION
+!define SSH_HANDLER_CONFIGURATION "Release"
+!endif
+
 !define SSH_HANDLER_NAME "SSH Handler"
 !define SSH_HANDLER_AUTHOR "Douglas Thrift"
 
@@ -28,7 +35,7 @@ SetCompressor /SOLID lzma
 ShowInstDetails show
 ShowUninstDetails show
 XPStyle on
-VIProductVersion "${SSH_HANDLER_VERSION}.0"
+VIProductVersion "${SSH_HANDLER_VERSION}"
 VIAddVersionKey "ProductName" "${SSH_HANDLER_NAME}"
 VIAddVersionKey "CompanyName" "${SSH_HANDLER_AUTHOR}"
 VIAddVersionKey "LegalCopyright" "Copyright 2013 ${SSH_HANDLER_AUTHOR}"
@@ -120,7 +127,7 @@ Section "!${SSH_HANDLER}"
     SectionIn 1 RO
     SetOutPath -
     WriteUninstaller "${UNINST_EXE}"
-    File "ssh-handler\bin\Release\${SSH_HANDLER_EXE}"
+    File "ssh-handler\bin\${SSH_HANDLER_CONFIGURATION}\${SSH_HANDLER_EXE}"
     ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
     StrCmpS $MultiUser.InstallMode "CurrentUser" CurrentUser AllUsers
 CurrentUser:

@@ -17,5 +17,7 @@ configuration:
 - Release
 before_build:
 - nuget restore
+after_build:
+- makensis /DSSH_HANDLER_VERSION=$(version) /DSSH_HANDLER_CONFIGURATION=$(configuration) ssh-handler.nsi
 cache:
 - dotNetFx40_Client_setup.exe
