@@ -2,9 +2,11 @@
 
 [![Release](https://img.shields.io/github/release/douglaswth/ssh-handler.svg?style=flat-square)][release]
 [![Issues](https://img.shields.io/github/issues/douglaswth/ssh-handler.svg?style=flat-square)][issues]
+[![Build](https://img.shields.io/appveyor/ci/douglaswth/ssh-handler/master.svg?style=flat-square)][build]
 
 [release]: https://github.com/douglaswth/ssh-handler/releases/latest
 [issues]: https://github.com/douglaswth/ssh-handler/issues
+[build]: https://ci.appveyor.com/project/douglaswth/ssh-handler/branch/master
 
 SSH Handler is a program that handles SSH URIs like [ssh://user@example.com]
 (ssh://user@example.com) on Windows. When you click an SSH link in your browser,
