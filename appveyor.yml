@@ -20,5 +20,8 @@ before_build:
 - nuget restore
 after_build:
 - makensis /DSSH_HANDLER_VERSION=%APPVEYOR_BUILD_VERSION% /DSSH_HANDLER_CONFIGURATION=%CONFIGURATION% ssh-handler.nsi
+artifacts:
+- path: ssh-handler\bin\$(configuration)\ssh-handler.exe
+- path: ssh-handler-*.exe
 cache:
 - dotNetFx40_Client_setup.exe
