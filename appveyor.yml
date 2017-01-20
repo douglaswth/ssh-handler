@@ -2,7 +2,7 @@ version: 1.1.0.{build}
 install:
 - cmd: cinst nsis -y
 - cmd: RefreshEnv
-- ps: Set-AppveyorBuildVariable -Name PATH -Value "%PATH%;C:\Program Files (x86)\NSIS"
+- ps: Set-AppveyorBuildVariable -Name PATH -Value "$env:PATH;C:\Program Files (x86)\NSIS"
 - ps: |
     $url='http://download.microsoft.com/download/7/B/6/7B629E05-399A-4A92-B5BC-484C74B5124B/dotNetFx40_Client_setup.exe'
     $exe=(Split-Path $url -Leaf)
