@@ -45,6 +45,9 @@ VIAddVersionKey "ProductVersion" "${SSH_HANDLER_VERSION}.0"
 
 !define SSH_HANDLER "${SSH_HANDLER_NAME} ${SSH_HANDLER_VERSION}"
 !define SSH_HANDLER_EXE "ssh-handler.exe"
+!define SSH_HANDLER_SETTINGS_LNK "${SSH_HANDLER_NAME} Settings.lnk"
+!define SSH_HANDLER_USER_SETTINGS_LNK "${SSH_HANDLER_NAME} User Settings.lnk"
+!define SSH_HANDLER_GLOBAL_SETTINGS_LNK "${SSH_HANDLER_NAME} Global Settings.lnk"
 
 !define SWC_INPUT_TOOLKIT_DLL "System.Windows.Controls.Input.Toolkit.dll"
 !define SWC_LAYOUT_TOOLKIT_DLL "System.Windows.Controls.Layout.Toolkit.dll"
@@ -136,29 +139,50 @@ Section "!${SSH_HANDLER}"
     File "ssh-handler\bin\${SSH_HANDLER_CONFIGURATION}\${WPF_TOOLKIT_DLL}"
     File "ssh-handler\bin\${SSH_HANDLER_CONFIGURATION}\${SSH_HANDLER_EXE}"
     ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
-    StrCmpS $MultiUser.InstallMode "CurrentUser" CurrentUser AllUsers
-CurrentUser:
+    StrCmpS $MultiUser.InstallMode "CurrentUser" RegistryCurrentUser RegistryAllUsers
+RegistryCurrentUser:
     !insertmacro REGISTRY HKCU
-    Goto Done
-AllUsers:
+    Goto RegistryDone
+RegistryAllUsers:
     !insertmacro REGISTRY HKLM
-Done:
+RegistryDone:
+    CreateDirectory "$SMPROGRAMS\${SSH_HANDLER_NAME}"
+    StrCmpS $MultiUser.InstallMode "CurrentUser" StartMenuCurrentUser StartMenuAllUsers
+StartMenuCurrentUser:
+    CreateShortcut /NoWorkingDir "$SMPROGRAMS\${SSH_HANDLER_NAME}\${SSH_HANDLER_SETTINGS_LNK}" \
+        "$INSTDIR\${SSH_HANDLER_EXE}" "/settings" "" "" "" "" "Change settings for handling ssh:// URIs"
+    Goto StartMenuDone
+StartMenuAllUsers:
+    CreateShortcut /NoWorkingDir "$SMPROGRAMS\${SSH_HANDLER_NAME}\${SSH_HANDLER_USER_SETTINGS_LNK}" \
+        "$INSTDIR\${SSH_HANDLER_EXE}" "/settings:user" "" "" "" "" "Change user settings for handling ssh:// URIs"
+    CreateShortcut /NoWorkingDir "$SMPROGRAMS\${SSH_HANDLER_NAME}\${SSH_HANDLER_GLOBAL_SETTINGS_LNK}" \
+        "$INSTDIR\${SSH_HANDLER_EXE}" "/settings:global" "" "" "" "" "Change global settings for handling ssh:// URIs"
+StartMenuDone:
 SectionEnd
 
 Section "un.${SSH_HANDLER}"
+    StrCmpS $MultiUser.InstallMode "CurrentUser" StartMenuCurrentUser StartMenuAllUsers
+StartMenuCurrentUser:
+    Delete /REBOOTOK "$SMPROGRAMS\${SSH_HANDLER_NAME}\${SSH_HANDLER_SETTINGS_LNK}"
+    Goto StartMenuDone
+StartMenuAllUsers:
+    Delete /REBOOTOK "$SMPROGRAMS\${SSH_HANDLER_NAME}\${SSH_HANDLER_USER_SETTINGS_LNK}"
+    Delete /REBOOTOK "$SMPROGRAMS\${SSH_HANDLER_NAME}\${SSH_HANDLER_GLOBAL_SETTINGS_LNK}"
+StartMenuDone:
+    RMDir /REBOOTOK "$SMPROGRAMS\${SSH_HANDLER_NAME}"
     Delete /REBOOTOK "$INSTDIR\${SSH_HANDLER_EXE}"
     Delete /REBOOTOK "$INSTDIR\${SWC_INPUT_TOOLKIT_DLL}"
     Delete /REBOOTOK "$INSTDIR\${SWC_LAYOUT_TOOLKIT_DLL}"
     Delete /REBOOTOK "$INSTDIR\${WPF_TOOLKIT_DLL}"
     Delete /REBOOTOK "$INSTDIR\${UNINST_EXE}"
     RMDir /REBOOTOK $INSTDIR
-    StrCmpS $MultiUser.InstallMode "CurrentUser" CurrentUser AllUsers
-CurrentUser:
+    StrCmpS $MultiUser.InstallMode "CurrentUser" RegistryCurrentUser RegistryAllUsers
+RegistryCurrentUser:
     !insertmacro UN_REGISTRY HKCU
-    Goto Done
-AllUsers:
+    Goto RegistryDone
+RegistryAllUsers:
     !insertmacro UN_REGISTRY HKLM
-Done:
+RegistryDone:
 SectionEnd
 
 Function .onInit
