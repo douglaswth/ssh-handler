@@ -46,6 +46,10 @@ VIAddVersionKey "ProductVersion" "${SSH_HANDLER_VERSION}.0"
 !define SSH_HANDLER "${SSH_HANDLER_NAME} ${SSH_HANDLER_VERSION}"
 !define SSH_HANDLER_EXE "ssh-handler.exe"
 
+!define SWC_INPUT_TOOLKIT_DLL "System.Windows.Controls.Input.Toolkit.dll"
+!define SWC_LAYOUT_TOOLKIT_DLL "System.Windows.Controls.Layout.Toolkit.dll"
+!define WPF_TOOLKIT_DLL "WPFToolkit.dll"
+
 !define DOT_NET_FRAMEWORK_EXE "dotNetFx40_Client_setup.exe"
 
 !define UNINST_REG "Software\Microsoft\Windows\CurrentVersion\Uninstall\$(^Name)"
@@ -127,6 +131,9 @@ Section "!${SSH_HANDLER}"
     SectionIn 1 RO
     SetOutPath -
     WriteUninstaller "${UNINST_EXE}"
+    File "ssh-handler\bin\${SSH_HANDLER_CONFIGURATION}\${SWC_INPUT_TOOLKIT_DLL}"
+    File "ssh-handler\bin\${SSH_HANDLER_CONFIGURATION}\${SWC_LAYOUT_TOOLKIT_DLL}"
+    File "ssh-handler\bin\${SSH_HANDLER_CONFIGURATION}\${WPF_TOOLKIT_DLL}"
     File "ssh-handler\bin\${SSH_HANDLER_CONFIGURATION}\${SSH_HANDLER_EXE}"
     ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
     StrCmpS $MultiUser.InstallMode "CurrentUser" CurrentUser AllUsers
@@ -140,6 +147,9 @@ SectionEnd
 
 Section "un.${SSH_HANDLER}"
     Delete /REBOOTOK "$INSTDIR\${SSH_HANDLER_EXE}"
+    Delete /REBOOTOK "$INSTDIR\${SWC_INPUT_TOOLKIT_DLL}"
+    Delete /REBOOTOK "$INSTDIR\${SWC_LAYOUT_TOOLKIT_DLL}"
+    Delete /REBOOTOK "$INSTDIR\${WPF_TOOLKIT_DLL}"
     Delete /REBOOTOK "$INSTDIR\${UNINST_EXE}"
     RMDir /REBOOTOK $INSTDIR
     StrCmpS $MultiUser.InstallMode "CurrentUser" CurrentUser AllUsers
