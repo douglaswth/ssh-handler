@@ -148,8 +148,8 @@ public class OpensshHandler : AbstractHandler, Handler
 
         if (minttyPath != null)
         {
-            var minttyCommand = new List<string>(new string[] { minttyPath });
-            
+            var minttyCommand = new List<string>(new string[] { minttyPath, "-h", "error" });
+
             if (cygwinPath != null)
             {
                 string icon = Path.Combine(cygwinPath, "Cygwin-Terminal.ico");
